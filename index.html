@@ -655,7 +655,7 @@
           });
         } else {
           // Tampilkan tombol login
-          loginSection.innerHTML = `<button class="login-btn" id="loginBtn"><i class="fab fa-google"></i> Login dengan Google</button>`;
+          loginSection.innerHTML = `<button class="login-btn" id="loginBtn"><i class="fab fa-google"></i> Login Admin</button>`;
           document.getElementById('loginBtn').addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider).catch(error => {
