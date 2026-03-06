@@ -33,7 +33,7 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
   <style>
-    /* ========== Gaya CSS (sama seperti sebelumnya) ========== */
+    /* ========== Gaya CSS ========== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Inter', sans-serif;
@@ -285,7 +285,6 @@
       gap: 12px;
       flex-wrap: wrap;
     }
-    .answer-like-btn,
     .answer-copy-btn {
       background: none;
       border: none;
@@ -300,7 +299,6 @@
       background: #f1f5f9;
       transition: 0.2s;
     }
-    .answer-like-btn:hover { background: #fee2e2; color: #b91c1c; }
     .answer-copy-btn:hover { background: #e0f2fe; color: #0369a1; }
     .reply-form {
       margin-top: 16px;
@@ -330,6 +328,27 @@
       transition: 0.2s;
     }
     .reply-form button:hover { background: #1e2b5e; }
+    .preview-btn {
+      background: #475569;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .preview-btn:hover { background: #1e293b; }
+    .preview-area {
+      background: #f8fafc;
+      padding: 15px;
+      border-radius: 20px;
+      margin: 10px 0 20px;
+      border: 1px solid #e2e8f0;
+    }
     .card-actions {
       display: flex;
       align-items: center;
@@ -355,8 +374,6 @@
       background: #f8fafc;
     }
     .action-btn i { font-size: 1rem; }
-    .action-btn.like:hover { background: #fee2e2; color: #b91c1c; }
-    .action-btn.like.active { color: #b91c1c; background: #fee2e2; }
     .action-btn.delete { background: #fef2f2; color: #991b1b; }
     .action-btn.delete:hover { background: #fee2e2; }
     .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -546,6 +563,11 @@
             <label for="question"><i class="far fa-question-circle"></i> Pertanyaan <span style="color:#b91c1c;">*</span> (dukung Markdown & LaTeX $...$ atau $$...$$)</label>
             <textarea id="question" placeholder="Contoh: **Rumus** $$E = mc^2$$ mempengaruhi..."></textarea>
           </div>
+          <!-- Tombol Preview untuk pertanyaan -->
+          <div style="margin-bottom:10px;">
+            <button type="button" id="previewQuestionBtn" class="preview-btn"><i class="fas fa-eye"></i> Preview</button>
+          </div>
+          <div id="questionPreview" class="preview-area" style="display:none;"></div>
           <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Kirim pertanyaan</button>
         </form>
         <p style="font-size:0.8rem; margin-top:20px; color:#64748b;"><i class="fas fa-info-circle"></i> Data tersimpan di cloud. Semua pengguna dapat melihat diskusi secara real-time.</p>
@@ -572,7 +594,7 @@
       <ul align="justify">
         <li><i class="fas fa-plus-circle" style="color:#2b3b7a;"></i> <strong>Menambahkan pertanyaan:</strong> Isi formulir di bagian kanan. Gunakan <code>$...$</code> untuk rumus inline, <code>$$...$$</code> untuk rumus display \(\LaTeX\), dan Markdown untuk format teks.</li>
         <li><i class="fas fa-reply" style="color:#2b3b7a;"></i> <strong>Menjawab pertanyaan:</strong> Gulir ke bawah kartu pertanyaan, isi form "Tulis jawaban". Juga bisa menggunakan Markdown dan \(\LaTeX\).</li>
-        <li><i class="fas fa-thumbs-up" style="color:#b91c1c;"></i> <strong>Memberi suka:</strong> Klik tombol "Suka" pada pertanyaan atau jawaban.</li>
+        <li><i class="fas fa-eye" style="color:#2b3b7a;"></i> <strong>Preview sebelum kirim:</strong> Gunakan tombol Preview pada form pertanyaan atau jawaban untuk melihat hasil render kode $\LaTeX$ terlebih dahulu. Bila sudah benar tampilannya klik "<b>Kirim Pertanyaan/Jawaban</b>". Bila belum silahkan perbaiki/edit pertanyaan atau jawaban.</li>
         <li><i class="fas fa-trash-can" style="color:#991b1b;"></i> <strong>Menghapus (khusus admin):</strong> Hanya pengguna dengan email admin yang bisa menghapus pertanyaan.</li>
         <li><i class="fas fa-cloud-upload-alt"></i> <strong>Data tersimpan di cloud</strong> dan sinkron real-time dengan semua pengguna.</li>
         <li><i class="fas fa-eye"></i> <strong>Sembunyikan/Tampilkan jawaban:</strong> Klik ikon mata pada setiap pertanyaan untuk menyembunyikan atau menampilkan bagian jawaban (hanya untuk tampilan lokal).</li>
@@ -623,48 +645,70 @@
 
       // Fungsi render Markdown dengan perlindungan delimiter LaTeX
       function renderMarkdown(text) {
-        if (!text) return '';
-        
-        // Langkah 1: Normalisasi: ubah dua backslash menjadi satu backslash untuk delimiter
-        let normalized = text
-          .replace(/\\\\\(/g, '\\(')   // dua backslash + ( menjadi satu backslash + (
-          .replace(/\\\\\[/g, '\\[')   // dua backslash + [ menjadi satu backslash + [
-          .replace(/\\\\\{/g, '\\{')   // dua backslash + { menjadi satu backslash + {
-          .replace(/\\\\\}/g, '\\}');  // dua backslash + } menjadi satu backslash + }
-        
-        // Langkah 2: Kumpulkan semua blok math dan ganti dengan token sementara
-        const mathInline = [];
-        const mathDisplay = [];
-        let tokenCounter = 0;
-        
-        // Tangkap inline math \( ... \) (dengan satu backslash)
-        normalized = normalized.replace(/\\\(([\s\S]*?)\\\)/g, (match, content) => {
-          const token = `##MATH_INLINE_${tokenCounter++}##`;
-          mathInline.push({ token, content });
-          return token;
-        });
-        
-        // Tangkap display math \[ ... \] (dengan satu backslash)
-        normalized = normalized.replace(/\\\[([\s\S]*?)\\\]/g, (match, content) => {
-          const token = `##MATH_DISPLAY_${tokenCounter++}##`;
-          mathDisplay.push({ token, content });
-          return token;
-        });
-        
-        // Langkah 3: Proses Markdown
-        let html = marked.parse(normalized);
-        
-        // Langkah 4: Kembalikan token menjadi delimiter asli
-        mathInline.forEach(item => {
-          html = html.replace(item.token, `\\(${item.content}\\)`);
-        });
-        mathDisplay.forEach(item => {
-          html = html.replace(item.token, `\\[${item.content}\\]`);
-        });
-        
-        // Langkah 5: Sanitasi
-        return DOMPurify.sanitize(html);
-      }
+  if (!text) return '';
+  
+  // Langkah 1: Normalisasi: ubah dua backslash menjadi satu backslash untuk delimiter
+  let normalized = text
+    .replace(/\\\\\(/g, '\\(')   // dua backslash + ( menjadi satu backslash + (
+    .replace(/\\\\\[/g, '\\[')   // dua backslash + [ menjadi satu backslash + [
+    .replace(/\\\\\{/g, '\\{')   // dua backslash + { menjadi satu backslash + {
+    .replace(/\\\\\}/g, '\\}');  // dua backslash + } menjadi satu backslash + }
+  
+  // Langkah 2: Kumpulkan semua blok math dan ganti dengan token sementara
+  const mathInline = [];          // untuk \(...\)
+  const mathDisplay = [];         // untuk \[...\]
+  const mathInlineDollar = [];    // untuk $...$
+  const mathDisplayDollar = [];   // untuk $$...$$
+  let tokenCounter = 0;
+  
+  // Tangkap display math $$ ... $$ (lakukan pertama agar tidak konflik dengan $ tunggal)
+  normalized = normalized.replace(/\$\$([\s\S]*?)\$\$/g, (match, content) => {
+    const token = `##MATH_DISPLAY_DOLLAR_${tokenCounter++}##`;
+    mathDisplayDollar.push({ token, content });
+    return token;
+  });
+  
+  // Tangkap inline math $ ... $ (hanya yang tidak termasuk dalam display)
+  normalized = normalized.replace(/\$([^\$]*?)\$/g, (match, content) => {
+    const token = `##MATH_INLINE_DOLLAR_${tokenCounter++}##`;
+    mathInlineDollar.push({ token, content });
+    return token;
+  });
+  
+  // Tangkap inline math \( ... \) (dengan satu backslash)
+  normalized = normalized.replace(/\\\(([\s\S]*?)\\\)/g, (match, content) => {
+    const token = `##MATH_INLINE_${tokenCounter++}##`;
+    mathInline.push({ token, content });
+    return token;
+  });
+  
+  // Tangkap display math \[ ... \] (dengan satu backslash)
+  normalized = normalized.replace(/\\\[([\s\S]*?)\\\]/g, (match, content) => {
+    const token = `##MATH_DISPLAY_${tokenCounter++}##`;
+    mathDisplay.push({ token, content });
+    return token;
+  });
+  
+  // Langkah 3: Proses Markdown
+  let html = marked.parse(normalized);
+  
+  // Langkah 4: Kembalikan token menjadi delimiter asli
+  mathInline.forEach(item => {
+    html = html.replace(item.token, `\\(${item.content}\\)`);
+  });
+  mathDisplay.forEach(item => {
+    html = html.replace(item.token, `\\[${item.content}\\]`);
+  });
+  mathInlineDollar.forEach(item => {
+    html = html.replace(item.token, `$${item.content}$`);
+  });
+  mathDisplayDollar.forEach(item => {
+    html = html.replace(item.token, `$$${item.content}$$`);
+  });
+  
+  // Langkah 5: Sanitasi
+  return DOMPurify.sanitize(html);
+}
 
       function isAdmin() {
         return currentUser && currentUser.email === ADMIN_EMAIL;
@@ -759,7 +803,7 @@
                     </div>
                     <div class="answer-text">${ansText}</div>
                     <div class="answer-actions">
-                      <button class="answer-like-btn" data-answer-id="${ans.id}" data-question-id="${q.id}"><i class="fas fa-thumbs-up"></i> <span>${ans.likes || 0}</span> Suka</button>
+                      <!-- Tombol like dihapus -->
                       <button class="answer-copy-btn" data-answer-id="${ans.id}" data-question-id="${q.id}" title="Salin jawaban"><i class="fas fa-copy"></i> Salin</button>
                     </div>
                   </div>
@@ -770,17 +814,20 @@
             html += `<p style="color:#94a3b8; margin-bottom:12px;">Belum ada jawaban. Jadilah yang pertama!</p>`;
           }
 
+          // Form jawaban dengan tombol preview
           html += `
               <div class="reply-form" data-question-id="${q.id}">
                 <input type="text" placeholder="Nama (opsional)" class="reply-name" />
                 <textarea placeholder="Tulis jawaban Anda... (dukung Markdown & LaTeX)" class="reply-text"></textarea>
-                <button class="reply-submit">Kirim Jawaban</button>
+                <div style="display:flex; gap:8px; margin-bottom:10px;">
+                  <button type="button" class="preview-answer-btn"><i class="fas fa-eye"></i> Preview</button>
+                  <button class="reply-submit">Kirim Jawaban</button>
+                </div>
+                <div class="answer-preview" style="display:none; background:#f8fafc; padding:15px; border-radius:20px; margin-top:10px; border:1px solid #e2e8f0;"></div>
               </div>
             </div> <!-- tutup answers-section -->
             <div class="card-actions">
-              <button class="action-btn like" data-id="${q.id}">
-                <i class="fas fa-thumbs-up"></i> <span class="like-count">${q.likes}</span> Suka
-              </button>
+              <!-- Tombol like dihapus -->
               <button class="action-btn toggle-answers" data-id="${q.id}" title="${toggleTitle}">
                 <i class="fas ${toggleIcon}"></i>
               </button>
@@ -809,7 +856,7 @@
                 id: doc.id,
                 name: data.name || 'Anonim',
                 question: data.question || '',
-                likes: data.likes || 0,
+                likes: data.likes || 0, // masih ada di DB, tapi tidak ditampilkan
                 answersHidden: false,
                 answers: Array.isArray(data.answers) ? data.answers.map(a => ({
                   id: a.id,
@@ -869,43 +916,7 @@
         }
       }
 
-      async function likeQuestion(questionId) {
-        try {
-          const questionRef = db.collection(QUESTIONS_COLLECTION).doc(questionId);
-          await db.runTransaction(async (transaction) => {
-            const doc = await transaction.get(questionRef);
-            if (!doc.exists) return;
-            transaction.update(questionRef, { 
-              likes: (doc.data().likes || 0) + 1 
-            });
-          });
-        } catch (error) {
-          console.error("Error liking question: ", error);
-          alert("Gagal memberi like. Coba lagi.");
-        }
-      }
-
-      async function likeAnswer(questionId, answerId) {
-  try {
-    // Referensi ke dokumen jawaban di subkoleksi
-    const answerRef = db
-      .collection(QUESTIONS_COLLECTION)
-      .doc(questionId)
-      .collection('answers')
-      .doc(answerId);
-
-    // Gunakan transaksi agar aman dari konflik
-    await db.runTransaction(async (transaction) => {
-      const answerDoc = await transaction.get(answerRef);
-      if (!answerDoc.exists) return;
-
-      const currentLikes = answerDoc.data().likes || 0;
-      transaction.update(answerRef, { likes: currentLikes + 1 });
-    });
-  } catch (error) {
-    console.error('Error liking answer:', error);
-  }
-}
+      // Fungsi like dihapus, tidak digunakan lagi
 
       async function deleteQuestion(questionId) {
         if (!isAdmin()) {
@@ -944,14 +955,8 @@
 
       // ====== Event delegation ======
       document.getElementById('questionsList').addEventListener('click', (e) => {
-        // Like pertanyaan
-        if (e.target.closest('.action-btn.like')) {
-          const btn = e.target.closest('.action-btn.like');
-          const qId = btn.getAttribute('data-id');
-          if (qId) likeQuestion(qId);
-        }
         // Hapus pertanyaan (admin)
-        else if (e.target.closest('.action-btn.delete')) {
+        if (e.target.closest('.action-btn.delete')) {
           const btn = e.target.closest('.action-btn.delete');
           const qId = btn.getAttribute('data-id');
           if (qId) deleteQuestion(qId);
@@ -962,19 +967,28 @@
           const qId = btn.getAttribute('data-id');
           if (qId) toggleAnswers(qId);
         }
-        // Like jawaban
-        else if (e.target.closest('.answer-like-btn')) {
-          const btn = e.target.closest('.answer-like-btn');
-          const ansId = btn.getAttribute('data-answer-id');
-          const qId = btn.getAttribute('data-question-id');
-          if (ansId && qId) likeAnswer(qId, ansId);
-        }
         // Salin jawaban
         else if (e.target.closest('.answer-copy-btn')) {
           const btn = e.target.closest('.answer-copy-btn');
           const ansId = btn.getAttribute('data-answer-id');
           const qId = btn.getAttribute('data-question-id');
           if (ansId && qId) copyAnswer(qId, ansId);
+        }
+        // Preview jawaban
+        else if (e.target.closest('.preview-answer-btn')) {
+          const btn = e.target.closest('.preview-answer-btn');
+          const replyForm = btn.closest('.reply-form');
+          const textarea = replyForm.querySelector('.reply-text');
+          const previewDiv = replyForm.querySelector('.answer-preview');
+          const text = textarea.value.trim();
+          if (text === '') {
+            previewDiv.style.display = 'none';
+            return;
+          }
+          const rendered = renderMarkdown(text);
+          previewDiv.innerHTML = rendered;
+          previewDiv.style.display = 'block';
+          if (window.MathJax) MathJax.typesetPromise([previewDiv]);
         }
       });
 
@@ -996,6 +1010,9 @@
             await addAnswer(qId, name, text);
             nameInput.value = '';
             textInput.value = '';
+            // Sembunyikan preview setelah kirim
+            const previewDiv = replyForm.querySelector('.answer-preview');
+            if (previewDiv) previewDiv.style.display = 'none';
           }
         }
       });
@@ -1014,6 +1031,22 @@
         await addQuestion(name, questionText);
         nameInput.value = '';
         questionInput.value = '';
+        // Sembunyikan preview setelah kirim
+        document.getElementById('questionPreview').style.display = 'none';
+      });
+
+      // Preview pertanyaan
+      document.getElementById('previewQuestionBtn').addEventListener('click', function() {
+        const questionText = document.getElementById('question').value;
+        const previewDiv = document.getElementById('questionPreview');
+        if (questionText.trim() === '') {
+          previewDiv.style.display = 'none';
+          return;
+        }
+        const rendered = renderMarkdown(questionText);
+        previewDiv.innerHTML = rendered;
+        previewDiv.style.display = 'block';
+        if (window.MathJax) MathJax.typesetPromise([previewDiv]);
       });
 
       // ====== Auth State Observer ======
