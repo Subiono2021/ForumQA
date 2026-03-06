@@ -576,7 +576,7 @@
         <li><i class="fas fa-trash-can" style="color:#991b1b;"></i> <strong>Menghapus (khusus admin):</strong> Hanya pengguna dengan email admin yang bisa menghapus pertanyaan.</li>
         <li><i class="fas fa-cloud-upload-alt"></i> <strong>Data tersimpan di cloud</strong> dan sinkron real-time dengan semua pengguna.</li>
         <li><i class="fas fa-eye"></i> <strong>Sembunyikan/Tampilkan jawaban:</strong> Klik ikon mata pada setiap pertanyaan untuk menyembunyikan atau menampilkan bagian jawaban (hanya untuk tampilan lokal).</li>
-        <li><i class="fas fa-copy"></i> <strong>Salin jawaban:</strong> Klik ikon salin pada setiap jawaban untuk menyalin teks asli (Markdown/LaTeX) ke clipboard.</li>
+        <li><i class="fas fa-copy"></i> <strong>Salin jawaban:</strong> Klik ikon salin pada setiap jawaban untuk menyalin teks asli (Markdown/LaTeX) ke clipboard. Lakukan <b>segera</b> hal ini sebab bila <b>admin</b> melakukan <b>penghapusan semua data diskusi tidak tampil lagi!</b></li>
       </ul>
       <p style="margin-top:20px;">Mari berdiskusi secara beradab, beretika dan sehat tentang masa depan pendidikan bersama AI! 🚀</p>
     </div>
@@ -886,22 +886,26 @@
       }
 
       async function likeAnswer(questionId, answerId) {
-        try {
-          const questionRef = db.collection(QUESTIONS_COLLECTION).doc(questionId);
-          await db.runTransaction(async (transaction) => {
-            const doc = await transaction.get(questionRef);
-            if (!doc.exists) return;
-            const data = doc.data();
-            const answers = data.answers || [];
-            const index = answers.findIndex(a => a.id == answerId);
-            if (index === -1) return;
-            answers[index].likes = (answers[index].likes || 0) + 1;
-            transaction.update(questionRef, { answers });
-          });
-        } catch (error) {
-          console.error("Error liking answer: ", error);
-        }
-      }
+  try {
+    // Referensi ke dokumen jawaban di subkoleksi
+    const answerRef = db
+      .collection(QUESTIONS_COLLECTION)
+      .doc(questionId)
+      .collection('answers')
+      .doc(answerId);
+
+    // Gunakan transaksi agar aman dari konflik
+    await db.runTransaction(async (transaction) => {
+      const answerDoc = await transaction.get(answerRef);
+      if (!answerDoc.exists) return;
+
+      const currentLikes = answerDoc.data().likes || 0;
+      transaction.update(answerRef, { likes: currentLikes + 1 });
+    });
+  } catch (error) {
+    console.error('Error liking answer:', error);
+  }
+}
 
       async function deleteQuestion(questionId) {
         if (!isAdmin()) {
