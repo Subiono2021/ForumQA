@@ -15,9 +15,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   
   <!-- MathJax untuk LaTeX -->
-   <!--  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script> -->
-  
-  <!-- MathJax (SVG) -->
   <script>
     window.MathJax = {
       tex: {
@@ -36,7 +33,7 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
   <style>
-    /* ========== Gaya CSS (sama seperti sebelumnya, ditambah beberapa gaya untuk login) ========== */
+    /* ========== Gaya CSS (sama seperti sebelumnya) ========== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Inter', sans-serif;
@@ -102,7 +99,6 @@
       background: rgba(255, 255, 255, 0.3);
       transform: scale(1.05);
     }
-    /* Tombol login */
     .login-btn {
       background: white;
       color: #1e2b5e;
@@ -150,7 +146,6 @@
       font-size: 0.8rem;
       margin-left: 8px;
     }
-    /* sisa CSS forum (sama seperti sebelumnya) */
     .forum-grid {
       display: grid;
       grid-template-columns: 1fr 0.9fr;
@@ -626,10 +621,49 @@
         });
       }
 
+      // Fungsi render Markdown dengan perlindungan delimiter LaTeX
       function renderMarkdown(text) {
         if (!text) return '';
-        let rawHtml = marked.parse(text);
-        return DOMPurify.sanitize(rawHtml);
+        
+        // Langkah 1: Normalisasi: ubah dua backslash menjadi satu backslash untuk delimiter
+        let normalized = text
+          .replace(/\\\\\(/g, '\\(')   // dua backslash + ( menjadi satu backslash + (
+          .replace(/\\\\\[/g, '\\[')   // dua backslash + [ menjadi satu backslash + [
+          .replace(/\\\\\{/g, '\\{')   // dua backslash + { menjadi satu backslash + {
+          .replace(/\\\\\}/g, '\\}');  // dua backslash + } menjadi satu backslash + }
+        
+        // Langkah 2: Kumpulkan semua blok math dan ganti dengan token sementara
+        const mathInline = [];
+        const mathDisplay = [];
+        let tokenCounter = 0;
+        
+        // Tangkap inline math \( ... \) (dengan satu backslash)
+        normalized = normalized.replace(/\\\(([\s\S]*?)\\\)/g, (match, content) => {
+          const token = `##MATH_INLINE_${tokenCounter++}##`;
+          mathInline.push({ token, content });
+          return token;
+        });
+        
+        // Tangkap display math \[ ... \] (dengan satu backslash)
+        normalized = normalized.replace(/\\\[([\s\S]*?)\\\]/g, (match, content) => {
+          const token = `##MATH_DISPLAY_${tokenCounter++}##`;
+          mathDisplay.push({ token, content });
+          return token;
+        });
+        
+        // Langkah 3: Proses Markdown
+        let html = marked.parse(normalized);
+        
+        // Langkah 4: Kembalikan token menjadi delimiter asli
+        mathInline.forEach(item => {
+          html = html.replace(item.token, `\\(${item.content}\\)`);
+        });
+        mathDisplay.forEach(item => {
+          html = html.replace(item.token, `\\[${item.content}\\]`);
+        });
+        
+        // Langkah 5: Sanitasi
+        return DOMPurify.sanitize(html);
       }
 
       function isAdmin() {
@@ -836,20 +870,20 @@
       }
 
       async function likeQuestion(questionId) {
-  try {
-    const questionRef = db.collection(QUESTIONS_COLLECTION).doc(questionId);
-    await db.runTransaction(async (transaction) => {
-      const doc = await transaction.get(questionRef);
-      if (!doc.exists) return;
-      transaction.update(questionRef, { 
-        likes: (doc.data().likes || 0) + 1 
-      });
-    });
-  } catch (error) {
-    console.error("Error liking question: ", error);
-    alert("Gagal memberi like. Coba lagi.");
-  }
-}
+        try {
+          const questionRef = db.collection(QUESTIONS_COLLECTION).doc(questionId);
+          await db.runTransaction(async (transaction) => {
+            const doc = await transaction.get(questionRef);
+            if (!doc.exists) return;
+            transaction.update(questionRef, { 
+              likes: (doc.data().likes || 0) + 1 
+            });
+          });
+        } catch (error) {
+          console.error("Error liking question: ", error);
+          alert("Gagal memberi like. Coba lagi.");
+        }
+      }
 
       async function likeAnswer(questionId, answerId) {
         try {
