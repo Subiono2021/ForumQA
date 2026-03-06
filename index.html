@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BiMath EduForum AI • Multi-User + Login</title>
+  <!-- Font Awesome & Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Firebase SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <!-- MathJax untuk LaTeX -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <!-- Markdown dan sanitasi -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
+  <style>
+    /* ========== Gaya CSS (sama seperti sebelumnya, ditambah beberapa gaya untuk login) ========== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafc;
+      color: #1e293b;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .site-header {
+      background: linear-gradient(135deg, #1e2b5e 0%, #2b3b7a 100%);
+      color: white;
+      padding: 20px 0;
+      border-bottom-left-radius: 32px;
+      border-bottom-right-radius: 32px;
+      box-shadow: 0 15px 30px -10px rgba(30, 43, 94, 0.3);
+      margin-bottom: 48px;
+    }
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .header-title h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+      cursor: pointer;
+    }
+    .header-title p {
+      font-size: 1rem;
+      opacity: 0.85;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: white;
+      width: 48px;
+      height: 48px;
+      border-radius: 30px;
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: 0.2s;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
+    /* Tombol login */
+    .login-btn {
+      background: white;
+      color: #1e2b5e;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 40px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .login-btn:hover {
+      background: #f0f0f0;
+    }
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.15);
+      padding: 5px 15px 5px 10px;
+      border-radius: 40px;
+      cursor: pointer;
+    }
+    .user-profile img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .user-profile span {
+      font-weight: 500;
+      color: white;
+    }
+    .admin-badge {
+      background: #fbbf24;
+      color: #1e2b5e;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      margin-left: 8px;
+    }
+    /* sisa CSS forum (sama seperti sebelumnya) */
+    .forum-grid {
+      display: grid;
+      grid-template-columns: 1fr 0.9fr;
+      gap: 32px;
+      margin-bottom: 48px;
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: #0f172a;
+    }
+    .section-title i {
+      background: #e0e7ff;
+      padding: 8px;
+      border-radius: 12px;
+      color: #2b3b7a;
+    }
+    .questions-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .question-card {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.06);
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid rgba(0, 0, 0, 0.02);
+    }
+    .question-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 35px -12px rgba(30, 43, 94, 0.15);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .avatar {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(145deg, #2b3b7a, #1e2b5e);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 1.2rem;
+      box-shadow: 0 6px 12px rgba(43, 59, 122, 0.2);
+      flex-shrink: 0;
+    }
+    .author-info { flex: 1; }
+    .author-name {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .author-name span {
+      background: #eef2ff;
+      color: #2b3b7a;
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 30px;
+    }
+    .question-date {
+      font-size: 0.8rem;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .question-text {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 18px;
+      padding-left: 4px;
+      color: #0f172a;
+    }
+    .answers-section {
+      margin-top: 20px;
+      border-top: 1px solid #e9eef3;
+      padding-top: 16px;
+    }
+    .answers-section.hidden { display: none; }
+    .answer-item {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 20px;
+      background: #f8fafd;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .answer-avatar {
+      width: 40px;
+      height: 40px;
+      background: #cbd5e1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: #1e293b;
+      flex-shrink: 0;
+    }
+    .answer-content { flex: 1; }
+    .answer-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .answer-name { font-weight: 600; color: #1e293b; }
+    .answer-date { font-size: 0.75rem; color: #64748b; }
+    .answer-text {
+      background: white;
+      padding: 12px 16px;
+      border-radius: 18px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+      margin-bottom: 10px;
+    }
+    .answer-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .answer-like-btn,
+    .answer-copy-btn {
+      background: none;
+      border: none;
+      color: #475569;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 20px;
+      background: #f1f5f9;
+      transition: 0.2s;
+    }
+    .answer-like-btn:hover { background: #fee2e2; color: #b91c1c; }
+    .answer-copy-btn:hover { background: #e0f2fe; color: #0369a1; }
+    .reply-form {
+      margin-top: 16px;
+      background: #f8fafc;
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .reply-form input,
+    .reply-form textarea {
+      width: 100%;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 20px;
+      font-family: 'Inter', sans-serif;
+      resize: vertical;
+    }
+    .reply-form textarea { min-height: 80px; }
+    .reply-form button {
+      background: #2b3b7a;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .reply-form button:hover { background: #1e2b5e; }
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 16px;
+      margin-top: 8px;
+    }
+    .action-btn {
+      background: none;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #475569;
+      cursor: pointer;
+      padding: 8px 14px;
+      border-radius: 40px;
+      transition: all 0.15s;
+      background: #f8fafc;
+    }
+    .action-btn i { font-size: 1rem; }
+    .action-btn.like:hover { background: #fee2e2; color: #b91c1c; }
+    .action-btn.like.active { color: #b91c1c; background: #fee2e2; }
+    .action-btn.delete { background: #fef2f2; color: #991b1b; }
+    .action-btn.delete:hover { background: #fee2e2; }
+    .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .form-card {
+      background: white;
+      border-radius: 28px;
+      padding: 30px 28px;
+      box-shadow: 0 20px 40px -14px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      position: sticky;
+      top: 30px;
+    }
+    .form-card h3 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.7rem;
+      font-weight: 600;
+      margin-bottom: 28px;
+      color: #0f172a;
+    }
+    .form-card h3 i {
+      background: #2b3b7a;
+      color: white;
+      padding: 10px;
+      border-radius: 18px;
+      font-size: 1.3rem;
+    }
+    .input-group { margin-bottom: 22px; }
+    .input-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #334155;
+      font-size: 0.95rem;
+    }
+    .input-group input,
+    .input-group textarea {
+      width: 100%;
+      padding: 16px 18px;
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 20px;
+      background: #fcfdff;
+      transition: 0.2s;
+      outline: none;
+    }
+    .input-group input:focus,
+    .input-group textarea:focus {
+      border-color: #2b3b7a;
+      box-shadow: 0 0 0 4px rgba(43, 59, 122, 0.1);
+      background: white;
+    }
+    .input-group textarea { min-height: 120px; resize: vertical; }
+    .btn-submit {
+      background: linear-gradient(135deg, #1e2b5e, #2b3b7a);
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 18px 24px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.25s;
+      box-shadow: 0 15px 25px -8px rgba(30, 43, 94, 0.3);
+    }
+    .btn-submit:hover {
+      transform: scale(1.02);
+      background: linear-gradient(135deg, #2b3b7a, #1e2b5e);
+      box-shadow: 0 20px 30px -6px rgba(30, 43, 94, 0.4);
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      border-radius: 36px;
+      padding: 32px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    .modal-content h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 12px;
+      color: #1e2b5e;
+    }
+    .modal-content p { margin-bottom: 12px; color: #334155; }
+    .modal-content ul { padding-left: 24px; margin: 16px 0; color: #1e293b; }
+    .modal-content li { margin-bottom: 10px; }
+    .close-modal {
+      position: absolute;
+      top: 20px; right: 24px;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: #94a3b8;
+      transition: 0.2s;
+    }
+    .close-modal:hover { color: #1e293b; }
+    .footer-note {
+      text-align: center;
+      color: #64748b;
+      padding: 32px 0 24px;
+      border-top: 1px solid #e2e8f0;
+      margin-top: 24px;
+      font-size: 0.9rem;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      background: white;
+      border-radius: 28px;
+      color: #94a3b8;
+      border: 2px dashed #cbd5e1;
+    }
+    .empty-state i { font-size: 3rem; margin-bottom: 16px; opacity: 0.5; }
+    @media (max-width: 900px) {
+      .forum-grid { grid-template-columns: 1fr; }
+      .form-card { position: static; }
+      .header-title h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-content">
+      <div class="header-title">
+        <h1 title=""><i class="fas fa-robot"></i> BiMath: EduForum AI (Multi-User + Login)</h1>
+        <p>Pendidikan di era AI: masalah & penyelesaiannya</p>
+        <div style="border-left:5px solid #ffd700; padding-left:18px; font-style:italic; line-height:1.7; text-align:justify;">
+          The results are largely the outcome of the constructive collaboration 
+          between <strong>BiMath</strong>, DeepSeek, ChatGPT, and Gemini Bard, 
+          and this synergy will continue to evolve and endure in the future.
+        </div>
+        <div style="margin-top:18px; font-size:14px; color:#d4af37; letter-spacing:0.5px;">
+          Knowledge • Structure • Philosophy
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="manualBtn" title="Panduan Pengguna"><i class="fas fa-book"></i></button>
+        <div id="loginSection"></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container forum-grid">
+    <!-- Kolom kiri: daftar pertanyaan + jawaban -->
+    <section>
+      <div class="section-title">
+        <i class="fas fa-comments"></i>
+        <h2>Diskusi terbaru</h2>
+      </div>
+      <div id="questionsList" class="questions-container">
+        <!-- diisi javascript -->
+      </div>
+    </section>
+
+    <!-- Kolom kanan: form pertanyaan -->
+    <aside>
+      <div class="form-card">
+        <h3><i class="fas fa-pen"></i> Ajukan pertanyaan</h3>
+        <form id="askForm">
+          <div class="input-group">
+            <label for="name"><i class="far fa-user"></i> Nama (opsional)</label>
+            <input type="text" id="name" placeholder="Misal: Andi Guru">
+          </div>
+          <div class="input-group">
+            <label for="question"><i class="far fa-question-circle"></i> Pertanyaan <span style="color:#b91c1c;">*</span> (dukung Markdown & LaTeX $...$ atau $$...$$)</label>
+            <textarea id="question" placeholder="Contoh: **Rumus** $$E = mc^2$$ mempengaruhi..."></textarea>
+          </div>
+          <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Kirim pertanyaan</button>
+        </form>
+        <p style="font-size:0.8rem; margin-top:20px; color:#64748b;"><i class="fas fa-info-circle"></i> Data tersimpan di cloud. Semua pengguna dapat melihat diskusi secara real-time.</p>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="footer-note">
+    <p><i class="fas fa-heart"></i> Forum interaktif dengan \(\LaTeX\) & Markdown — <a href="#" id="manualFooterLink">panduan pengguna</a></p>
+  </footer>
+
+  <!-- Modal Manual Pengguna -->
+  <div id="manualModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" id="closeManual">&times;</span>
+      <h2><i class="fas fa-book-open"></i> Panduan Forum</h2>
+      <p style="margin:0 30px 15px 10px; font-size:30px;" dir="rtl" class="arabic">
+        <b>كَلَّا سُبْحَانَكَ لَا عِلْمَ لَنَا إِلَّا مَا عَلَّمْتَنَا إِنَّكَ أَنْتَ الْعَلِيمُ الْحَكِيمُ</b>
+      </p>
+      <p align="justify"><strong>Selamat datang di BiMath: EduForum AI (Multi-User + Login)!</strong></p>
+      <p align="justify">Forum ini adalah ruang belajar bersama secara real-time. Setiap pertanyaan dan jawaban langsung tersimpan di cloud dan dapat dilihat oleh semua pengguna.</p>
+      <p align="justify">Kami percaya bahwa setiap manusia memiliki martabat yang sama dalam proses mencari ilmu. Tidak ada tingkatan yang merendahkan atau meninggikan seseorang di sini setiap pertanyaan dihargai, setiap gagasan didengarkan, dan setiap kontribusi dipandang sebagai bagian dari perjalanan belajar bersama.</p>
+      <p align="justify">Di BiMath: EduForum AI, kita belajar bukan untuk saling mengungguli, tetapi untuk saling memahami, saling membantu, dan saling memperkaya wawasan. Semoga forum ini menjadi tempat yang ramah, terbuka, dan <b>memanusiakan manusia</b> dalam semangat keilmuan yang jujur, kritis, dan penuh rasa hormat. Berikut cara menggunakan forum diskusi ini:</p>	  
+      <ul align="justify">
+        <li><i class="fas fa-plus-circle" style="color:#2b3b7a;"></i> <strong>Menambahkan pertanyaan:</strong> Isi formulir di bagian kanan. Gunakan <code>\(...\)</code> untuk rumus inline, <code>$$...$$</code> untuk rumus display \(\LaTeX\), dan Markdown untuk format teks.</li>
+        <li><i class="fas fa-reply" style="color:#2b3b7a;"></i> <strong>Menjawab pertanyaan:</strong> Gulir ke bawah kartu pertanyaan, isi form "Tulis jawaban". Juga bisa menggunakan Markdown dan \(\LaTeX\).</li>
+        <li><i class="fas fa-thumbs-up" style="color:#b91c1c;"></i> <strong>Memberi suka:</strong> Klik tombol "Suka" pada pertanyaan atau jawaban.</li>
+        <li><i class="fas fa-trash-can" style="color:#991b1b;"></i> <strong>Menghapus (khusus admin):</strong> Hanya pengguna dengan email admin yang bisa menghapus pertanyaan. Login dengan Google untuk menjadi admin.</li>
+        <li><i class="fas fa-cloud-upload-alt"></i> <strong>Data tersimpan di cloud</strong> dan sinkron real-time dengan semua pengguna.</li>
+        <li><i class="fas fa-eye"></i> <strong>Sembunyikan/Tampilkan jawaban:</strong> Klik ikon mata pada setiap pertanyaan untuk menyembunyikan atau menampilkan bagian jawaban (hanya untuk tampilan lokal).</li>
+        <li><i class="fas fa-copy"></i> <strong>Salin jawaban:</strong> Klik ikon salin pada setiap jawaban untuk menyalin teks asli (Markdown/LaTeX) ke clipboard.</li>
+      </ul>
+      <p style="margin-top:20px;">Mari berdiskusi secara beradab, beretika dan sehat tentang masa depan pendidikan bersama AI! 🚀</p>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ====== KONFIGURASI FIREBASE ======
+      const firebaseConfig = {
+        apiKey: "AIzaSyBn9A2Lu54pXRBOrPddw7KIPEGdxcRdpo8",
+        authDomain: "bimath-eduforum-ai.firebaseapp.com",
+        projectId: "bimath-eduforum-ai",
+        storageBucket: "bimath-eduforum-ai.firebasestorage.app",
+        messagingSenderId: "1082837920674",
+        appId: "1:1082837920674:web:b9534dc02d7c68e8a660fb",
+        measurementId: "G-NS6EWKRCYH"
+      };
+
+      // Inisialisasi Firebase
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      const auth = firebase.auth();
+
+      // ====== Konstanta ======
+      const ADMIN_EMAIL = 'admin@email.com'; // GANTI DENGAN EMAIL ANDA
+      const QUESTIONS_COLLECTION = 'questions';
+
+      // ====== State ======
+      let questions = [];
+      let unsubscribe = null;
+      let currentUser = null; // { email, displayName, photoURL }
+
+      // ====== Helper functions ======
+      function escapeHTML(str) {
+        if (!str) return '';
+        return str.replace(/[&<>"]/g, m => {
+          if (m === '&') return '&amp;';
+          if (m === '<') return '&lt;';
+          if (m === '>') return '&gt;';
+          if (m === '"') return '&quot;';
+          return m;
+        });
+      }
+
+      function renderMarkdown(text) {
+        if (!text) return '';
+        let rawHtml = marked.parse(text);
+        return DOMPurify.sanitize(rawHtml);
+      }
+
+      function isAdmin() {
+        return currentUser && currentUser.email === ADMIN_EMAIL;
+      }
+
+      // ====== Render UI Login ======
+      function updateLoginUI() {
+        const loginSection = document.getElementById('loginSection');
+        if (!loginSection) return;
+
+        if (currentUser) {
+          // Tampilkan profil user
+          loginSection.innerHTML = `
+            <div class="user-profile" id="logoutBtn">
+              <img src="${escapeHTML(currentUser.photoURL || 'https://via.placeholder.com/32')}" alt="foto">
+              <span>${escapeHTML(currentUser.displayName || 'User')}</span>
+              ${isAdmin() ? '<span class="admin-badge"><i class="fas fa-crown"></i> Admin</span>' : ''}
+            </div>
+          `;
+          // Event logout
+          document.getElementById('logoutBtn').addEventListener('click', () => {
+            auth.signOut();
+          });
+        } else {
+          // Tampilkan tombol login
+          loginSection.innerHTML = `<button class="login-btn" id="loginBtn"><i class="fab fa-google"></i> Login dengan Google</button>`;
+          document.getElementById('loginBtn').addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch(error => {
+              console.error('Login error:', error);
+              alert('Gagal login. Lihat konsol.');
+            });
+          });
+        }
+      }
+
+      // ====== Render tampilan forum ======
+      function renderQuestions() {
+        const container = document.getElementById('questionsList');
+        if (!container) return;
+
+        if (questions.length === 0) {
+          container.innerHTML = `<div class="empty-state"><i class="far fa-smile-wink"></i><p>Belum ada diskusi. Jadilah yang pertama bertanya!</p></div>`;
+          return;
+        }
+
+        const admin = isAdmin();
+        let html = '';
+
+        questions.forEach(q => {
+          const initial = q.name ? q.name.trim().charAt(0).toUpperCase() : 'A';
+          const escapedName = escapeHTML(q.name) || 'Anonim';
+          const date = q.date || 'Baru saja';
+          const renderedQuestion = renderMarkdown(q.question);
+          const answersHiddenClass = q.answersHidden ? 'hidden' : '';
+          const toggleIcon = q.answersHidden ? 'fa-eye-slash' : 'fa-eye';
+          const toggleTitle = q.answersHidden ? 'Tampilkan jawaban' : 'Sembunyikan jawaban';
+
+          html += `
+            <div class="question-card" data-id="${q.id}">
+              <div class="card-header">
+                <div class="avatar">${initial}</div>
+                <div class="author-info">
+                  <div class="author-name">
+                    ${escapedName}
+                    <span>pendidik</span>
+                  </div>
+                  <div class="question-date">
+                    <i class="far fa-calendar-alt"></i> ${date}
+                  </div>
+                </div>
+              </div>
+              <div class="question-text">
+                ${renderedQuestion}
+              </div>
+              <div class="answers-section ${answersHiddenClass}">
+          `;
+
+          if (q.answers && q.answers.length > 0) {
+            q.answers.forEach(ans => {
+              const ansInitial = ans.name ? ans.name.trim().charAt(0).toUpperCase() : 'A';
+              const ansName = escapeHTML(ans.name) || 'Anonim';
+              const ansText = renderMarkdown(ans.answer);
+              const ansDate = ans.date || '';
+              html += `
+                <div class="answer-item" data-answer-id="${ans.id}">
+                  <div class="answer-avatar">${ansInitial}</div>
+                  <div class="answer-content">
+                    <div class="answer-meta">
+                      <span class="answer-name">${ansName}</span>
+                      <span class="answer-date">${ansDate}</span>
+                    </div>
+                    <div class="answer-text">${ansText}</div>
+                    <div class="answer-actions">
+                      <button class="answer-like-btn" data-answer-id="${ans.id}" data-question-id="${q.id}"><i class="fas fa-thumbs-up"></i> <span>${ans.likes || 0}</span> Suka</button>
+                      <button class="answer-copy-btn" data-answer-id="${ans.id}" data-question-id="${q.id}" title="Salin jawaban"><i class="fas fa-copy"></i> Salin</button>
+                    </div>
+                  </div>
+                </div>
+              `;
+            });
+          } else {
+            html += `<p style="color:#94a3b8; margin-bottom:12px;">Belum ada jawaban. Jadilah yang pertama!</p>`;
+          }
+
+          html += `
+              <div class="reply-form" data-question-id="${q.id}">
+                <input type="text" placeholder="Nama (opsional)" class="reply-name" />
+                <textarea placeholder="Tulis jawaban Anda... (dukung Markdown & LaTeX)" class="reply-text"></textarea>
+                <button class="reply-submit">Kirim Jawaban</button>
+              </div>
+            </div> <!-- tutup answers-section -->
+            <div class="card-actions">
+              <button class="action-btn like" data-id="${q.id}">
+                <i class="fas fa-thumbs-up"></i> <span class="like-count">${q.likes}</span> Suka
+              </button>
+              <button class="action-btn toggle-answers" data-id="${q.id}" title="${toggleTitle}">
+                <i class="fas ${toggleIcon}"></i>
+              </button>
+              <button class="action-btn comment" disabled style="opacity:0.6; background:#f1f5f9;">
+                <i class="fas fa-comment"></i> ${q.answers ? q.answers.length : 0} Jawaban
+              </button>
+              ${admin ? `<button class="action-btn delete" data-id="${q.id}"><i class="fas fa-trash-can"></i> Hapus</button>` : ''}
+            </div>
+          </div> <!-- tutup question-card -->
+          `;
+        });
+
+        container.innerHTML = html;
+        if (window.MathJax) MathJax.typesetPromise();
+      }
+
+      // ====== Listener Firestore ======
+      function subscribeToQuestions() {
+        if (unsubscribe) unsubscribe();
+        unsubscribe = db.collection(QUESTIONS_COLLECTION)
+          .orderBy('createdAt', 'desc')
+          .onSnapshot(snapshot => {
+            questions = snapshot.docs.map(doc => {
+              const data = doc.data();
+              return {
+                id: doc.id,
+                name: data.name || 'Anonim',
+                question: data.question || '',
+                likes: data.likes || 0,
+                answersHidden: false,
+                answers: Array.isArray(data.answers) ? data.answers.map(a => ({
+                  id: a.id,
+                  name: a.name || 'Anonim',
+                  answer: a.answer || '',
+                  likes: a.likes || 0,
+                  date: a.date || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+                })) : [],
+                date: data.date || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+                createdAt: data.createdAt || new Date()
+              };
+            });
+            renderQuestions();
+          }, error => console.error("Listener error:", error));
+      }
+
+      // ====== Operasi Firestore ======
+      async function addQuestion(name, questionText) {
+        try {
+          const now = new Date();
+          const formattedDate = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+          await db.collection(QUESTIONS_COLLECTION).add({
+            name: name.trim() || 'Anonim',
+            question: questionText.trim(),
+            likes: 0,
+            answers: [],
+            date: formattedDate,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        } catch (error) {
+          console.error("Error adding question: ", error);
+          alert("Gagal menambahkan pertanyaan.");
+        }
+      }
+
+      async function addAnswer(questionId, name, answerText) {
+        try {
+          const questionRef = db.collection(QUESTIONS_COLLECTION).doc(questionId);
+          await db.runTransaction(async (transaction) => {
+            const doc = await transaction.get(questionRef);
+            if (!doc.exists) throw new Error("Pertanyaan tidak ditemukan");
+            const data = doc.data();
+            const answers = data.answers || [];
+            const newAnswer = {
+              id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+              name: name.trim() || 'Anonim',
+              answer: answerText.trim(),
+              likes: 0,
+              date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+            };
+            answers.push(newAnswer);
+            transaction.update(questionRef, { answers });
+          });
+        } catch (error) {
+          console.error("Error adding answer: ", error);
+          alert("Gagal menambahkan jawaban.");
+        }
+      }
+
+      async function likeQuestion(questionId) {
+        try {
+          const questionRef = db.collection(QUESTIONS_COLLECTION).doc(questionId);
+          await db.runTransaction(async (transaction) => {
+            const doc = await transaction.get(questionRef);
+            if (!doc.exists) return;
+            transaction.update(questionRef, { likes: (doc.data().likes || 0) + 1 });
+          });
+        } catch (error) {
+          console.error("Error liking question: ", error);
+        }
+      }
+
+      async function likeAnswer(questionId, answerId) {
+        try {
+          const questionRef = db.collection(QUESTIONS_COLLECTION).doc(questionId);
+          await db.runTransaction(async (transaction) => {
+            const doc = await transaction.get(questionRef);
+            if (!doc.exists) return;
+            const data = doc.data();
+            const answers = data.answers || [];
+            const index = answers.findIndex(a => a.id == answerId);
+            if (index === -1) return;
+            answers[index].likes = (answers[index].likes || 0) + 1;
+            transaction.update(questionRef, { answers });
+          });
+        } catch (error) {
+          console.error("Error liking answer: ", error);
+        }
+      }
+
+      async function deleteQuestion(questionId) {
+        if (!isAdmin()) {
+          alert('Hanya admin yang dapat menghapus pertanyaan.');
+          return;
+        }
+        if (!confirm('Hapus pertanyaan ini dari forum?')) return;
+        try {
+          await db.collection(QUESTIONS_COLLECTION).doc(questionId).delete();
+        } catch (error) {
+          console.error("Error deleting question: ", error);
+          alert("Gagal menghapus pertanyaan. Pastikan Anda login sebagai admin dan memiliki izin.");
+        }
+      }
+
+      function toggleAnswers(questionId) {
+        const question = questions.find(q => q.id == questionId);
+        if (question) {
+          question.answersHidden = !question.answersHidden;
+          renderQuestions();
+        }
+      }
+
+      function copyAnswer(questionId, answerId) {
+        const question = questions.find(q => q.id == questionId);
+        if (!question) return;
+        const answer = question.answers.find(a => a.id == answerId);
+        if (!answer) return;
+        navigator.clipboard.writeText(answer.answer).then(() => {
+          alert('Jawaban berhasil disalin ke clipboard!');
+        }).catch(err => {
+          alert('Gagal menyalin teks.');
+          console.error(err);
+        });
+      }
+
+      // ====== Event delegation ======
+      document.getElementById('questionsList').addEventListener('click', (e) => {
+        // Like pertanyaan
+        if (e.target.closest('.action-btn.like')) {
+          const btn = e.target.closest('.action-btn.like');
+          const qId = btn.getAttribute('data-id');
+          if (qId) likeQuestion(qId);
+        }
+        // Hapus pertanyaan (admin)
+        else if (e.target.closest('.action-btn.delete')) {
+          const btn = e.target.closest('.action-btn.delete');
+          const qId = btn.getAttribute('data-id');
+          if (qId) deleteQuestion(qId);
+        }
+        // Toggle jawaban (lokal)
+        else if (e.target.closest('.action-btn.toggle-answers')) {
+          const btn = e.target.closest('.action-btn.toggle-answers');
+          const qId = btn.getAttribute('data-id');
+          if (qId) toggleAnswers(qId);
+        }
+        // Like jawaban
+        else if (e.target.closest('.answer-like-btn')) {
+          const btn = e.target.closest('.answer-like-btn');
+          const ansId = btn.getAttribute('data-answer-id');
+          const qId = btn.getAttribute('data-question-id');
+          if (ansId && qId) likeAnswer(qId, ansId);
+        }
+        // Salin jawaban
+        else if (e.target.closest('.answer-copy-btn')) {
+          const btn = e.target.closest('.answer-copy-btn');
+          const ansId = btn.getAttribute('data-answer-id');
+          const qId = btn.getAttribute('data-question-id');
+          if (ansId && qId) copyAnswer(qId, ansId);
+        }
+      });
+
+      // Submit jawaban
+      document.getElementById('questionsList').addEventListener('click', async (e) => {
+        if (e.target.classList.contains('reply-submit')) {
+          const replyForm = e.target.closest('.reply-form');
+          if (!replyForm) return;
+          const qId = replyForm.getAttribute('data-question-id');
+          const nameInput = replyForm.querySelector('.reply-name');
+          const textInput = replyForm.querySelector('.reply-text');
+          if (nameInput && textInput) {
+            const name = nameInput.value.trim();
+            const text = textInput.value.trim();
+            if (!text) {
+              alert('Jawaban tidak boleh kosong.');
+              return;
+            }
+            await addAnswer(qId, name, text);
+            nameInput.value = '';
+            textInput.value = '';
+          }
+        }
+      });
+
+      // Form tambah pertanyaan
+      document.getElementById('askForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const questionInput = document.getElementById('question');
+        const questionText = questionInput.value.trim();
+        if (!questionText) {
+          alert('Tulis pertanyaan Anda terlebih dahulu.');
+          return;
+        }
+        const nameInput = document.getElementById('name');
+        const name = nameInput.value.trim() || 'Anonim';
+        await addQuestion(name, questionText);
+        nameInput.value = '';
+        questionInput.value = '';
+      });
+
+      // ====== Auth State Observer ======
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          currentUser = {
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL
+          };
+        } else {
+          currentUser = null;
+        }
+        updateLoginUI();
+        renderQuestions(); // Render ulang untuk menampilkan/menyembunyikan tombol hapus
+      });
+
+      // ====== Modal manual ======
+      const modal = document.getElementById('manualModal');
+      const manualBtn = document.getElementById('manualBtn');
+      const manualFooterLink = document.getElementById('manualFooterLink');
+      const closeManual = document.getElementById('closeManual');
+
+      function openModal() { modal.classList.add('active'); }
+      function closeModal() { modal.classList.remove('active'); }
+
+      manualBtn.addEventListener('click', openModal);
+      manualFooterLink.addEventListener('click', (e) => { e.preventDefault(); openModal(); });
+      closeManual.addEventListener('click', closeModal);
+      window.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+      // ====== Mulai ======
+      subscribeToQuestions();
+      updateLoginUI();
+    })();
+  </script>
+</body>
+</html>
