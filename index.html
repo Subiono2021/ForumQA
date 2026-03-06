@@ -819,17 +819,20 @@
       }
 
       async function likeQuestion(questionId) {
-        try {
-          const questionRef = db.collection(QUESTIONS_COLLECTION).doc(questionId);
-          await db.runTransaction(async (transaction) => {
-            const doc = await transaction.get(questionRef);
-            if (!doc.exists) return;
-            transaction.update(questionRef, { likes: (doc.data().likes || 0) + 1 });
-          });
-        } catch (error) {
-          console.error("Error liking question: ", error);
-        }
-      }
+  try {
+    const questionRef = db.collection(QUESTIONS_COLLECTION).doc(questionId);
+    await db.runTransaction(async (transaction) => {
+      const doc = await transaction.get(questionRef);
+      if (!doc.exists) return;
+      transaction.update(questionRef, { 
+        likes: (doc.data().likes || 0) + 1 
+      });
+    });
+  } catch (error) {
+    console.error("Error liking question: ", error);
+    alert("Gagal memberi like. Coba lagi.");
+  }
+}
 
       async function likeAnswer(questionId, answerId) {
         try {
