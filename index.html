@@ -23,13 +23,16 @@
       tex: {
         inlineMath: [['$', '$'], ['\\(', '\\)']],
         displayMath: [['\\[', '\\]'], ['$$', '$$']],
-        processEscapes: true
+        processEscapes: true,
+        packages: ['base', 'ams', 'newcommand', 'configMacros']
       },
       svg: {
         fontCache: 'global'
       },
       options: {
-        enableMenu: false
+        enableMenu: false,
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process'
       }
     };
   </script>
@@ -38,6 +41,13 @@
   <!-- Markdown dan sanitasi -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
+  
+  <!-- jQuery (untuk MathQuill) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+  <!-- MathQuill untuk LaTeX Editor -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.min.js"></script>
   
   <!-- Font untuk Arabic -->
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
@@ -673,6 +683,184 @@
       top: 0 !important;
     }
     
+    /* LaTeX Editor Bar (bersatu dengan SageMath) */
+    .latex-editor-section {
+      max-width: 1300px;
+      margin: 0 auto 40px;
+      padding: 0 24px;
+    }
+    
+    .latex-editor-container {
+      background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+      border-radius: 28px;
+      padding: 25px 28px;
+      box-shadow: 0 15px 35px -12px rgba(30, 43, 94, 0.2);
+      border: 1px solid #e2e8f0;
+      border-left: 5px solid #2b3b7a;
+      margin-bottom: 30px;
+    }
+    
+    .latex-editor-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .latex-editor-header h3 {
+      font-size: 1.5rem;
+      color: #1e2b5e;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .latex-editor-header h3 i {
+      background: #2b3b7a;
+      color: white;
+      padding: 8px;
+      border-radius: 12px;
+    }
+    
+    .latex-toolbar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+      background: #f1f5f9;
+      padding: 15px;
+      border-radius: 40px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .latex-toolbar-group {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      padding: 0 5px;
+      border-right: 2px solid #cbd5e1;
+    }
+    
+    .latex-toolbar-group:last-child {
+      border-right: none;
+    }
+    
+    .latex-btn {
+      background: white;
+      border: 1px solid #cbd5e1;
+      min-width: 45px;
+      height: 45px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #1e293b;
+      padding: 0 12px;
+    }
+    
+    .latex-btn:hover {
+      background: #2b3b7a;
+      color: white;
+      border-color: #2b3b7a;
+      transform: scale(1.05);
+    }
+    
+    .latex-btn i {
+      font-size: 1.1rem;
+    }
+    
+    .latex-btn.wide {
+      min-width: 80px;
+    }
+    
+    .math-field-container {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 20px;
+      min-height: 120px;
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      transition: 0.2s;
+    }
+    
+    .math-field-container.mq-focused {
+      border-color: #2b3b7a;
+      box-shadow: 0 0 0 4px rgba(43, 59, 122, 0.1);
+    }
+    
+    .latex-output-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f1f5f9;
+      padding: 12px 18px;
+      border-radius: 40px;
+      margin-top: 10px;
+    }
+    
+    .latex-output-row code {
+      background: white;
+      padding: 8px 15px;
+      border-radius: 30px;
+      flex: 1;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: #1e2b5e;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    
+    .copy-latex-btn {
+      background: #2b3b7a;
+      color: white;
+      border: none;
+      width: 45px;
+      height: 45px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    
+    .copy-latex-btn:hover {
+      background: #1e2b5e;
+      transform: scale(1.05);
+    }
+    
+    .insert-btn {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 40px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    
+    .insert-btn:hover {
+      background: #059669;
+    }
+    
+    .insert-btn.secondary {
+      background: #8b5cf6;
+    }
+    
+    .insert-btn.secondary:hover {
+      background: #7c3aed;
+    }
+    
     @media (max-width: 900px) {
       .forum-grid { grid-template-columns: 1fr; }
       .form-card { position: static; }
@@ -739,6 +927,162 @@
     </aside>
   </main>
 
+  <!-- LaTeX Editor Section (bersatu dengan SageMath) -->
+  <div class="latex-editor-section">
+    <div class="latex-editor-container">
+      <div class="latex-editor-header">
+        <h3><i class="fas fa-square-root-alt"></i> LaTeX Math Editor Lengkap</h3>
+        <div style="flex:1;"></div>
+        <button class="insert-btn" id="insertToQuestion"><i class="fas fa-arrow-up"></i> Sisipkan ke Pertanyaan</button>
+        <button class="insert-btn secondary" id="insertToAnswer"><i class="fas fa-reply"></i> Sisipkan ke Jawaban</button>
+      </div>
+      
+      <!-- Toolbar Simbol LaTeX Lengkap -->
+      <div class="latex-toolbar">
+        <!-- Kelompok 1: Operasi Dasar -->
+        <div class="latex-toolbar-group">
+          <button class="latex-btn" data-latex="\frac{a}{b}" title="Pecahan"><i class="fas fa-fraction"></i></button>
+          <button class="latex-btn" data-latex="\sqrt{x}" title="Akar Kuadrat"><i class="fas fa-square-root-alt"></i></button>
+          <button class="latex-btn" data-latex="\sqrt[3]{x}" title="Akar Pangkat 3"><sup>3</sup>√</button>
+          <button class="latex-btn" data-latex="x^{2}" title="Pangkat">x²</button>
+          <button class="latex-btn" data-latex="x_{i}" title="Subscript">xᵢ</button>
+        </div>
+        
+        <!-- Kelompok 2: Kalkulus -->
+        <div class="latex-toolbar-group">
+          <button class="latex-btn" data-latex="\int_{a}^{b}" title="Integral"><i class="fas fa-integral"></i></button>
+          <button class="latex-btn" data-latex="\sum_{i=1}^{n}" title="Sumasi"><i class="fas fa-sigma"></i></button>
+          <button class="latex-btn" data-latex="\prod_{i=1}^{n}" title="Produk"><i class="fas fa-pi"></i></button>
+          <button class="latex-btn" data-latex="\lim_{x \to \infty}" title="Limit">lim</button>
+          <button class="latex-btn" data-latex="\partial" title="Parsial">∂</button>
+          <button class="latex-btn" data-latex="\nabla" title="Nabla">∇</button>
+        </div>
+        
+        <!-- Kelompok 3: Matrix & Cases -->
+        <div class="latex-toolbar-group">
+          <button class="latex-btn wide" data-latex="\begin{pmatrix} a & b \\ c & d \end{pmatrix}" title="Matrix (pmatrix)">⎛⎝matrix⎞⎠</button>
+          <button class="latex-btn wide" data-latex="\begin{bmatrix} a & b \\ c & d \end{bmatrix}" title="Matrix (bmatrix)">[matrix]</button>
+          <button class="latex-btn wide" data-latex="\begin{cases} x & \text{jika } a=0 \\ y & \text{lainnya} \end{cases}" title="Cases">cases</button>
+          <button class="latex-btn" data-latex="\begin{aligned} x &= a+b \\ y &= c+d \end{aligned}" title="Aligned">align</button>
+        </div>
+        
+        <!-- Kelompok 4: Huruf Yunani -->
+        <div class="latex-toolbar-group">
+          <button class="latex-btn" data-latex="\alpha">α</button>
+          <button class="latex-btn" data-latex="\beta">β</button>
+          <button class="latex-btn" data-latex="\gamma">γ</button>
+          <button class="latex-btn" data-latex="\delta">δ</button>
+          <button class="latex-btn" data-latex="\epsilon">ε</button>
+          <button class="latex-btn" data-latex="\theta">θ</button>
+          <button class="latex-btn" data-latex="\pi">π</button>
+          <button class="latex-btn" data-latex="\mu">μ</button>
+          <button class="latex-btn" data-latex="\lambda">λ</button>
+          <button class="latex-btn" data-latex="\sigma">σ</button>
+          <button class="latex-btn" data-latex="\omega">ω</button>
+        </div>
+        
+        <!-- Kelompok 5: Operator -->
+        <div class="latex-toolbar-group">
+          <button class="latex-btn" data-latex="\pm">±</button>
+          <button class="latex-btn" data-latex="\times">×</button>
+          <button class="latex-btn" data-latex="\div">÷</button>
+          <button class="latex-btn" data-latex="\cdot">·</button>
+          <button class="latex-btn" data-latex="\circ">∘</button>
+          <button class="latex-btn" data-latex="\infty">∞</button>
+          <button class="latex-btn" data-latex="\partial">∂</button>
+        </div>
+        
+        <!-- Kelompok 6: Relasi -->
+        <div class="latex-toolbar-group">
+          <button class="latex-btn" data-latex="\leq">≤</button>
+          <button class="latex-btn" data-latex="\geq">≥</button>
+          <button class="latex-btn" data-latex="\neq">≠</button>
+          <button class="latex-btn" data-latex="\approx">≈</button>
+          <button class="latex-btn" data-latex="\equiv">≡</button>
+          <button class="latex-btn" data-latex="\propto">∝</button>
+        </div>
+        
+        <!-- Kelompok 7: Logika & Himpunan -->
+        <div class="latex-toolbar-group">
+          <button class="latex-btn" data-latex="\forall">∀</button>
+          <button class="latex-btn" data-latex="\exists">∃</button>
+          <button class="latex-btn" data-latex="\in">∈</button>
+          <button class="latex-btn" data-latex="\subset">⊂</button>
+          <button class="latex-btn" data-latex="\cup">∪</button>
+          <button class="latex-btn" data-latex="\cap">∩</button>
+        </div>
+        
+        <!-- Kelompok 8: Panah -->
+        <div class="latex-toolbar-group">
+          <button class="latex-btn" data-latex="\Rightarrow">⇒</button>
+          <button class="latex-btn" data-latex="\Leftarrow">⇐</button>
+          <button class="latex-btn" data-latex="\rightarrow">→</button>
+          <button class="latex-btn" data-latex="\leftarrow">←</button>
+          <button class="latex-btn" data-latex="\mapsto">↦</button>
+        </div>
+        
+        <!-- Kelompok 9: Tanda Kurung -->
+        <div class="latex-toolbar-group">
+          <button class="latex-btn" data-latex="\left(  \right)" title="Kurung otomatis">( )</button>
+          <button class="latex-btn" data-latex="\left[  \right]" title="Kurung siku">[ ]</button>
+          <button class="latex-btn" data-latex="\left\{  \right\}" title="Kurung kurawal">{ }</button>
+          <button class="latex-btn" data-latex="\left|  \right|" title="Nilai mutlak">| |</button>
+        </div>
+        
+        <!-- Kelompok 10: Fungsi -->
+        <div class="latex-toolbar-group">
+          <button class="latex-btn" data-latex="\sin">sin</button>
+          <button class="latex-btn" data-latex="\cos">cos</button>
+          <button class="latex-btn" data-latex="\tan">tan</button>
+          <button class="latex-btn" data-latex="\log">log</button>
+          <button class="latex-btn" data-latex="\ln">ln</button>
+          <button class="latex-btn" data-latex="\exp">exp</button>
+        </div>
+      </div>
+      
+      <!-- MathQuill Field -->
+      <div id="mathEditorField" class="math-field-container"></div>
+      
+      <!-- Output LaTeX dan Copy -->
+      <div class="latex-output-row">
+        <i class="fas fa-code" style="color: #2b3b7a;"></i>
+        <code id="latexOutput">\( \)</code>
+        <button class="copy-latex-btn" id="copyLatexBtn" title="Salin LaTeX"><i class="fas fa-copy"></i></button>
+      </div>
+      <p style="font-size:0.85rem; color:#64748b; margin-top:12px;">
+        <i class="fas fa-info-circle"></i> Klik simbol untuk menambahkannya ke editor. Gunakan tombol sisipkan untuk memasukkan kode LaTeX ke form pertanyaan atau jawaban.
+      </p>
+    </div>
+  </div>
+
+  <!-- SageMath Cell Embedded -->
+  <div class="sagecell-utama-container" style="max-width:1300px; margin:0 auto 60px; padding:0 24px;">
+    <div class="sagecell-header-utama" style="background:white; border-radius:24px; padding:25px; margin-bottom:30px; box-shadow:0 10px 25px -8px rgba(0,0,0,0.06); border:1px solid #e2e8f0;">
+      <h2 style="font-size:1.8rem; color:#1e2b5e; margin-bottom:15px; display:flex; align-items:center; gap:10px;"><i class="fas fa-calculator"></i> Komputasi Interaktif dengan SageMath</h2>
+      <p style="color:#475569; margin-bottom:15px;">
+        <i class="fas fa-info-circle" style="color:#2b3b7a;"></i> 
+        Klik tombol di bawah untuk menambah sel komputasi. Setiap sel dapat dijalankan, disembunyikan, atau dihapus.
+      </p>
+      
+      <div style="display:flex; gap:15px; margin-bottom:30px; flex-wrap:wrap;">
+        <button class="btn-sage" onclick="tambahSelSederhana()" style="border:none; padding:15px 25px; font-size:1rem; font-weight:600; border-radius:30px; display:inline-flex; align-items:center; gap:10px; cursor:pointer; transition:all 0.25s; color:white; background:linear-gradient(135deg, #1e2b5e, #2b3b7a); box-shadow:0 10px 20px -8px rgba(30,43,94,0.3);">
+          <i class="fas fa-plus-circle"></i> Sel Sederhana (Persamaan Kuadrat)
+        </button>
+        <button class="btn-sage" onclick="tambahSelInteraktif()" style="border:none; padding:15px 25px; font-size:1rem; font-weight:600; border-radius:30px; display:inline-flex; align-items:center; gap:10px; cursor:pointer; transition:all 0.25s; color:white; background:linear-gradient(135deg, #1e2b5e, #2b3b7a);">
+          <i class="fas fa-chart-line"></i> Sel Interaktif (Integral dengan Plot)
+        </button>
+        <button class="btn-sage" onclick="tambahSelKosong()" style="border:none; padding:15px 25px; font-size:1rem; font-weight:600; border-radius:30px; display:inline-flex; align-items:center; gap:10px; cursor:pointer; transition:all 0.25s; color:white; background:linear-gradient(135deg, #1e2b5e, #2b3b7a);">
+          <i class="fas fa-code"></i> Sel Kosong (Default)
+        </button>
+      </div>
+    </div>
+    
+    <!-- Container untuk sel-sel SageMath -->
+    <div id="sagecell-container" class="sagecell-dynamic-container" style="min-height:50px;">
+      <!-- Sel akan ditambahkan di sini -->
+    </div>
+  </div>
+
   <footer class="footer-note">
     <p><i class="fas fa-heart"></i> Forum interaktif dengan \(\LaTeX\) & Markdown — <a href="#" id="manualFooterLink">panduan pengguna</a></p>
   </footer>
@@ -755,6 +1099,16 @@
       <ul align="justify">
         <li><i class="fas fa-plus-circle" style="color:#2b3b7a;"></i> <strong>Menambahkan pertanyaan:</strong> Isi formulir di bagian kanan. Gunakan <code>$...$</code> untuk rumus inline, <code>$$...$$</code> untuk rumus display \(\LaTeX\), dan Markdown untuk format teks.</li>
         <li><i class="fas fa-reply" style="color:#2b3b7a;"></i> <strong>Menjawab pertanyaan:</strong> Gulir ke bawah kartu pertanyaan, isi form "Tulis jawaban". Juga bisa menggunakan Markdown dan \(\LaTeX\).</li>
+        <li><i class="fas fa-square-root-alt" style="color:#2b3b7a;"></i> <strong>LaTeX Math Editor Lengkap:</strong> Gunakan toolbar simbol di bawah forum untuk membuat notasi matematika secara visual. Tersedia berbagai simbol:
+          <ul>
+            <li><strong>Matrix:</strong> pmatrix, bmatrix untuk membuat matriks</li>
+            <li><strong>Cases:</strong> Untuk menulis fungsi piecewise atau sistem persamaan</li>
+            <li><strong>Aligned:</strong> Untuk menulis persamaan multi-baris</li>
+            <li><strong>Kalkulus:</strong> Integral, sumasi, limit, turunan parsial</li>
+            <li><strong>Huruf Yunani:</strong> α, β, γ, δ, ε, θ, π, dll</li>
+            <li><strong>Operator & Relasi:</strong> Semua simbol matematika umum</li>
+          </ul>
+        </li>
         <li><i class="fas fa-eye" style="color:#2b3b7a;"></i> <strong>Preview sebelum kirim:</strong> Gunakan tombol Preview pada form pertanyaan atau jawaban untuk melihat hasil render kode $\LaTeX$ terlebih dahulu.</li>
         <li><i class="fas fa-trash-can" style="color:#991b1b;"></i> <strong>Menghapus (khusus admin):</strong> Hanya pengguna dengan email admin yang bisa menghapus pertanyaan.</li>
         <li><i class="fas fa-cloud-upload-alt"></i> <strong>Data tersimpan di cloud</strong> dan sinkron real-time dengan semua pengguna.</li>
@@ -772,6 +1126,8 @@
     </div>
   </div>
 
+  <script src="https://sagecell.sagemath.org/static/embedded_sagecell.js"></script>
+  
   <script>
     (function() {
       // ====== KONFIGURASI FIREBASE ======
@@ -806,7 +1162,11 @@
       let selectedVoice = null;
       let speechRate = 1.0;
       let speechPitch = 1.0;
-      let currentLanguage = 'id'; // Default bahasa Indonesia
+      let currentLanguage = 'id';
+      
+      // ====== MathQuill State ======
+      let MQ = null;
+      let mathField = null;
       
       // Inisialisasi Google Translate
       window.googleTranslateElementInit = function() {
@@ -817,13 +1177,11 @@
           autoDisplay: false
         }, 'google_translate_element');
         
-        // Deteksi perubahan bahasa Google Translate
         const observer = new MutationObserver(function(mutations) {
           mutations.forEach(function(mutation) {
             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
               const htmlElement = document.documentElement;
               if (htmlElement.classList.contains('translated-ltr') || htmlElement.classList.contains('translated-rtl')) {
-                // Bahasa telah berubah
                 const lang = htmlElement.lang || 'id';
                 currentLanguage = lang.split('-')[0];
                 console.log('Bahasa berubah menjadi:', currentLanguage);
@@ -847,52 +1205,40 @@
         });
       }
 
-      // Fungsi untuk membersihkan teks dari markup LaTeX dan Markdown untuk voice
       function cleanTextForVoice(text) {
         if (!text) return '';
-        
-        // Hapus delimiter LaTeX
         let clean = text
-          .replace(/\$\$([\s\S]*?)\$\$/g, '$1') // $$...$$
-          .replace(/\$([^\$]*?)\$/g, '$1') // $...$
-          .replace(/\\\(([\s\S]*?)\\\)/g, '$1') // \(...\)
-          .replace(/\\\[([\s\S]*?)\\\]/g, '$1') // \[...\]
-          .replace(/\\\\/g, '\\'); // fix backslashes
-        
-        // Hapus markup Markdown sederhana
-        clean = clean
-          .replace(/\*\*(.*?)\*\*/g, '$1') // bold
-          .replace(/\*(.*?)\*/g, '$1') // italic
-          .replace(/__(.*?)__/g, '$1') // underline
-          .replace(/~~(.*?)~~/g, '$1') // strikethrough
-          .replace(/`(.*?)`/g, '$1') // code
-          .replace(/#{1,6}\s/g, '') // headers
-          .replace(/!\[.*?\]\(.*?\)/g, '') // images
-          .replace(/\[(.*?)\]\(.*?\)/g, '$1'); // links
-        
+          .replace(/\$\$([\s\S]*?)\$\$/g, '$1')
+          .replace(/\$([^\$]*?)\$/g, '$1')
+          .replace(/\\\(([\s\S]*?)\\\)/g, '$1')
+          .replace(/\\\[([\s\S]*?)\\\]/g, '$1')
+          .replace(/\\\\/g, '\\')
+          .replace(/\*\*(.*?)\*\*/g, '$1')
+          .replace(/\*(.*?)\*/g, '$1')
+          .replace(/__(.*?)__/g, '$1')
+          .replace(/~~(.*?)~~/g, '$1')
+          .replace(/`(.*?)`/g, '$1')
+          .replace(/#{1,6}\s/g, '')
+          .replace(/!\[.*?\]\(.*?\)/g, '')
+          .replace(/\[(.*?)\]\(.*?\)/g, '$1');
         return clean;
       }
 
-      // Fungsi untuk mendapatkan teks dari elemen (tanpa HTML)
       function getTextFromElement(element) {
         if (!element) return '';
         const clone = element.cloneNode(true);
-        // Hapus elemen-elemen yang tidak perlu
         const scriptTags = clone.querySelectorAll('script, style, .MathJax, mjx-container');
         scriptTags.forEach(el => el.remove());
         return clone.textContent || clone.innerText || '';
       }
 
-      // Fungsi untuk memuat voices yang tersedia
       function loadVoices() {
         voices = window.speechSynthesis.getVoices();
         
-        // Update dropdown jika ada
         const voiceSelect = document.getElementById('voiceSelect');
         if (voiceSelect) {
           voiceSelect.innerHTML = '<option value="">Pilih suara (otomatis)</option>';
           
-          // Kelompokkan suara berdasarkan bahasa
           const groupedVoices = {};
           voices.forEach((voice, index) => {
             const lang = voice.lang.split('-')[0];
@@ -900,7 +1246,6 @@
             groupedVoices[lang].push({ voice, index });
           });
           
-          // Urutkan berdasarkan bahasa
           Object.keys(groupedVoices).sort().forEach(lang => {
             const langName = getLanguageName(lang);
             const optgroup = document.createElement('optgroup');
@@ -910,10 +1255,6 @@
               const option = document.createElement('option');
               option.value = item.index;
               option.textContent = `${item.voice.name} (${item.voice.lang})${item.voice.default ? ' [default]' : ''}`;
-              if (item.voice.lang.includes('id') || item.voice.lang.includes('ms')) {
-                option.style.fontWeight = 'bold';
-                option.style.backgroundColor = '#f0f9ff';
-              }
               optgroup.appendChild(option);
             });
             
@@ -921,73 +1262,46 @@
           });
         }
         
-        // Prioritaskan suara berdasarkan bahasa saat ini
         updateVoiceForCurrentLanguage();
       }
 
-      // Fungsi untuk mendapatkan nama bahasa
       function getLanguageName(langCode) {
         const languages = {
-          'id': 'Indonesia',
-          'en': 'Inggris',
-          'ar': 'Arab',
-          'zh': 'Mandarin',
-          'ja': 'Jepang',
-          'ko': 'Korea',
-          'fr': 'Prancis',
-          'de': 'Jerman',
-          'es': 'Spanyol',
-          'ru': 'Rusia',
-          'hi': 'Hindi',
-          'pt': 'Portugis',
-          'nl': 'Belanda',
-          'it': 'Italia',
-          'tr': 'Turki',
-          'vi': 'Vietnam',
-          'th': 'Thai'
+          'id': 'Indonesia', 'en': 'Inggris', 'ar': 'Arab', 'zh': 'Mandarin',
+          'ja': 'Jepang', 'ko': 'Korea', 'fr': 'Prancis', 'de': 'Jerman',
+          'es': 'Spanyol', 'ru': 'Rusia', 'hi': 'Hindi', 'pt': 'Portugis',
+          'nl': 'Belanda', 'it': 'Italia', 'tr': 'Turki', 'vi': 'Vietnam', 'th': 'Thai'
         };
         return languages[langCode] || langCode.toUpperCase();
       }
 
-      // Fungsi untuk update voice berdasarkan bahasa yang dipilih
       function updateVoiceForCurrentLanguage() {
         if (!voices.length) return;
-        
-        // Cari voice untuk bahasa saat ini
         const targetVoices = voices.filter(v => v.lang.startsWith(currentLanguage));
         if (targetVoices.length > 0) {
-          // Prioritaskan suara Google atau Microsoft
           const premiumVoice = targetVoices.find(v => 
             v.name.includes('Google') || v.name.includes('Microsoft') || v.name.includes('Premium')
           );
           selectedVoice = premiumVoice || targetVoices[0];
         } else {
-          // Fallback ke suara default
           selectedVoice = voices.find(v => v.default) || voices[0];
         }
       }
 
-      // Fungsi untuk speak text
       function speakText(text, btnElement) {
-        // Stop any currently playing speech
         stopSpeaking();
-        
         const cleanText = cleanTextForVoice(text);
         if (!cleanText.trim()) {
           alert('Tidak ada teks yang dapat dibaca.');
           return;
         }
         
-        // Batasi panjang teks
         const truncatedText = cleanText.length > 2000 ? cleanText.substring(0, 2000) + '...' : cleanText;
-        
         const utterance = new SpeechSynthesisUtterance(truncatedText);
         
-        // Set voice berdasarkan pilihan atau bahasa saat ini
         if (selectedVoice) {
           utterance.voice = selectedVoice;
         } else {
-          // Fallback ke setting bahasa
           utterance.lang = currentLanguage === 'id' ? 'id-ID' : 
                           currentLanguage === 'en' ? 'en-US' :
                           currentLanguage === 'ar' ? 'ar-SA' : 
@@ -1026,53 +1340,11 @@
         window.speechSynthesis.speak(utterance);
       }
 
-      // Fungsi untuk copy teks asli (raw)
-      function copyOriginalAnswer(questionId, answerId) {
-        const question = questions.find(q => q.id == questionId);
-        if (!question) return;
-        const answer = question.answers.find(a => a.id == answerId);
-        if (!answer) return;
-        
-        navigator.clipboard.writeText(answer.answer).then(() => {
-          alert('Teks asli (raw) berhasil disalin ke clipboard!');
-        }).catch(err => {
-          alert('Gagal menyalin teks.');
-          console.error(err);
-        });
-      }
-
-      // Fungsi untuk copy teks yang sedang ditampilkan
-      function copyDisplayedAnswer(questionId, answerId, btnElement) {
-        const question = questions.find(q => q.id == questionId);
-        if (!question) return;
-        
-        // Ambil teks yang sedang ditampilkan
-        const answerItem = btnElement.closest('.answer-item');
-        let textToCopy = '';
-        
-        if (answerItem) {
-          const answerTextDiv = answerItem.querySelector('.answer-text');
-          textToCopy = getTextFromElement(answerTextDiv);
-        } else {
-          const answer = question.answers.find(a => a.id == answerId);
-          textToCopy = answer ? answer.answer : '';
-        }
-        
-        navigator.clipboard.writeText(textToCopy.trim()).then(() => {
-          alert('Teks yang ditampilkan berhasil disalin ke clipboard!');
-        }).catch(err => {
-          alert('Gagal menyalin teks.');
-          console.error(err);
-        });
-      }
-
-      // Fungsi untuk stop speaking
       function stopSpeaking() {
         if (window.speechSynthesis.speaking) {
           window.speechSynthesis.cancel();
         }
         
-        // Reset semua tombol voice
         document.querySelectorAll('.answer-voice-btn.playing').forEach(btn => {
           btn.classList.remove('playing');
           btn.innerHTML = '<i class="fas fa-headphones"></i> Dengarkan';
@@ -1081,13 +1353,11 @@
         currentUtterance = null;
       }
 
-      // Load voices when available
       if (window.speechSynthesis) {
         window.speechSynthesis.onvoiceschanged = loadVoices;
         setTimeout(loadVoices, 100);
       }
 
-      // Fungsi render Markdown
       function renderMarkdown(text) {
         if (!text) return '';
         
@@ -1190,7 +1460,6 @@
         const admin = isAdmin();
         let html = '';
 
-        // Tambahkan kontrol voice
         html += `
           <div class="voice-controls">
             <i class="fas fa-volume-up" style="color: #2b3b7a;"></i>
@@ -1301,7 +1570,6 @@
 
         container.innerHTML = html;
         
-        // Setup event listeners untuk kontrol
         setTimeout(() => {
           const voiceSelect = document.getElementById('voiceSelect');
           if (voiceSelect) {
@@ -1322,14 +1590,12 @@
             });
           }
           
-          // Update status bahasa
           const voiceStatus = document.getElementById('voiceStatus');
           if (voiceStatus) {
             const langName = getLanguageName(currentLanguage);
             voiceStatus.innerHTML = `<i class="fas fa-check-circle"></i> Bahasa: ${langName}`;
           }
           
-          // Load voices untuk dropdown
           loadVoices();
         }, 100);
         
@@ -1433,7 +1699,6 @@
         const question = questions.find(q => q.id == questionId);
         if (!question) return;
         
-        // Ambil teks yang sedang ditampilkan
         const answerItem = btnElement.closest('.answer-item');
         let textToSpeak = '';
         
@@ -1452,12 +1717,48 @@
         }
       }
 
+      function copyOriginalAnswer(questionId, answerId) {
+        const question = questions.find(q => q.id == questionId);
+        if (!question) return;
+        const answer = question.answers.find(a => a.id == answerId);
+        if (!answer) return;
+        
+        navigator.clipboard.writeText(answer.answer).then(() => {
+          alert('Teks asli (raw) berhasil disalin ke clipboard!');
+        }).catch(err => {
+          alert('Gagal menyalin teks.');
+          console.error(err);
+        });
+      }
+
+      function copyDisplayedAnswer(questionId, answerId, btnElement) {
+        const question = questions.find(q => q.id == questionId);
+        if (!question) return;
+        
+        const answerItem = btnElement.closest('.answer-item');
+        let textToCopy = '';
+        
+        if (answerItem) {
+          const answerTextDiv = answerItem.querySelector('.answer-text');
+          textToCopy = getTextFromElement(answerTextDiv);
+        } else {
+          const answer = question.answers.find(a => a.id == answerId);
+          textToCopy = answer ? answer.answer : '';
+        }
+        
+        navigator.clipboard.writeText(textToCopy.trim()).then(() => {
+          alert('Teks yang ditampilkan berhasil disalin ke clipboard!');
+        }).catch(err => {
+          alert('Gagal menyalin teks.');
+          console.error(err);
+        });
+      }
+
       // ====== Event delegation ======
       document.getElementById('questionsList').addEventListener('click', async (e) => {
         const target = e.target.closest('button');
         if (!target) return;
         
-        // Cegah event bubbling untuk dropdown
         e.stopPropagation();
         
         if (target.classList.contains('action-btn.delete')) {
@@ -1502,7 +1803,6 @@
         }
       });
 
-      // Event untuk reply submit
       document.getElementById('questionsList').addEventListener('click', async (e) => {
         if (e.target.classList.contains('reply-submit')) {
           const replyForm = e.target.closest('.reply-form');
@@ -1584,442 +1884,243 @@
 
       subscribeToQuestions();
       updateLoginUI();
-    })();
-  </script>
-  
-  <!-- SageMath Cell Embedded -->
-  <script src="https://sagecell.sagemath.org/static/embedded_sagecell.js"></script>
-  
-  <!-- CSS Khusus untuk SageMath Output -->
-  <style>
-    /* Container utama SageMath */
-    .sagecell-utama-container {
-      max-width: 1300px;
-      margin: 40px auto 60px;
-      padding: 0 24px;
-    }
-    
-    .sagecell-header-utama {
-      background: white;
-      border-radius: 24px;
-      padding: 25px;
-      margin-bottom: 30px;
-      box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.06);
-      border: 1px solid #e2e8f0;
-    }
-    
-    .sagecell-header-utama h2 {
-      font-size: 1.8rem;
-      color: #1e2b5e;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .sagecell-toolbar {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-    }
-    
-    .btn-sage {
-      border: none;
-      padding: 15px 25px;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: 30px;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      transition: all 0.25s;
-      color: white;
-      background: linear-gradient(135deg, #1e2b5e, #2b3b7a);
-      box-shadow: 0 10px 20px -8px rgba(30, 43, 94, 0.3);
-    }
-    
-    .btn-sage:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 15px 25px -8px rgba(30, 43, 94, 0.4);
-    }
-    
-    .btn-sage i {
-      font-size: 1.1rem;
-    }
-    
-    /* Wrapper untuk setiap sel SageMath */
-    .sagecell-wrapper {
-      background: white;
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 25px;
-      box-shadow: 0 5px 15px -5px rgba(0, 0, 0, 0.1);
-      border: 1px solid #e2e8f0;
-      border-left: 5px solid #2b3b7a;
-    }
-    
-    .sagecell-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #eef2ff;
-    }
-    
-    .sagecell-title {
-      font-weight: 600;
-      color: #1e2b5e;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .sagecell-controls {
-      display: flex;
-      gap: 8px;
-    }
-    
-    .sagecell-controls button {
-      border: none;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: #f1f5f9;
-      color: #475569;
-    }
-    
-    .sagecell-controls button:hover {
-      transform: scale(1.1);
-    }
-    
-    .sagecell-controls .delete-btn:hover {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-    
-    .sagecell-controls .toggle-btn:hover {
-      background: #e0f2fe;
-      color: #0369a1;
-    }
-    
-    .sagecell-content {
-      transition: all 0.3s;
-    }
-    
-    .sagecell-content.hidden {
-      display: none;
-    }
-    
-    /* Styling untuk output LaTeX dari SageMath */
-    .sage-output .latex-display {
-      background: #f8fafc;
-      padding: 15px;
-      border-radius: 12px;
-      margin: 10px 0;
-      border: 1px solid #e2e8f0;
-    }
-    
-    .sage-output mjx-container {
-      margin: 5px 0 !important;
-    }
-    
-    /* Perbaikan alignment untuk inline math */
-    mjx-container[jax="SVG"][display="false"] {
-      display: inline-block !important;
-      vertical-align: middle !important;
-    }
-    
-    /* Container dinamis */
-    .sagecell-dynamic-container {
-      min-height: 50px;
-    }
-    
-    .empty-message {
-      text-align: center;
-      padding: 40px;
-      color: #94a3b8;
-      background: #f8fafc;
-      border-radius: 16px;
-      border: 2px dashed #cbd5e1;
-      font-style: italic;
-    }
-    
-    /* Responsif */
-    @media (max-width: 768px) {
-      .sagecell-toolbar {
-        flex-direction: column;
-      }
-      .btn-sage {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-  </style>
-  
-  <div class="sagecell-utama-container">
-    <div class="sagecell-header-utama">
-      <h2><i class="fas fa-calculator"></i> Komputasi Interaktif dengan SageMath</h2>
-      <p style="color: #475569; margin-bottom: 15px;">
-        <i class="fas fa-info-circle" style="color: #2b3b7a;"></i> 
-        <button><b>Klik!</b></button> tombol yang tersedia di bawah ini untuk menambah sel komputasi. Setiap sel dapat dijalankan, disembunyikan, atau dihapus.
-      </p>
       
-      <div class="sagecell-toolbar">
-        <button class="btn-sage" onclick="tambahSelSederhana()">
-          <i class="fas fa-plus-circle"></i> Sel Sederhana (Persamaan Kuadrat: $ax^2+bx+c=0$)
-        </button>
-        <button class="btn-sage" onclick="tambahSelInteraktif()">
-          <i class="fas fa-chart-line"></i> Sel Interaktif (Integral dengan Plot)
-        </button>
-        <button class="btn-sage" onclick="tambahSelKosong()">
-          <i class="fas fa-code"></i> Sel Kosong (Default)
-        </button>
-      </div>
-    </div>
-    
-    <!-- Container untuk sel-sel SageMath -->
-    <div id="sagecell-container" class="sagecell-dynamic-container">
-      <!-- Sel akan ditambahkan di sini -->
-    </div>
-  </div>
-  
-  <script>
-  // Fungsi untuk memastikan SageMath siap
-  function waitForSageMath(callback) {
-    if (typeof sagecell !== 'undefined' && sagecell.makeSagecell) {
-      callback();
-    } else {
-      setTimeout(function() { waitForSageMath(callback); }, 100);
-    }
-  }
-  
-  // Counter untuk ID unik
-  let cellCounter = 0;
-  
-  // Fungsi untuk membuat sel SageMath baru
-  function buatSelSageMath(kode, judul, template = 'default') {
-    cellCounter++;
-    const cellId = 'sagecell-' + cellCounter + '-' + Date.now();
-    const codeId = cellId + '-code';
-    const container = document.getElementById('sagecell-container');
-    
-    // Buat elemen sel
-    const cellDiv = document.createElement('div');
-    cellDiv.className = 'sagecell-wrapper';
-    cellDiv.id = cellId;
-    
-    cellDiv.innerHTML = `
-      <div class="sagecell-header">
-        <span class="sagecell-title">
-          <i class="fas fa-cogs"></i> ${judul}
-        </span>
-        <div class="sagecell-controls">
-          <button class="toggle-btn" onclick="toggleSel('${cellId}')" title="Sembunyikan/Tampilkan">
-            <i class="fas fa-eye"></i>
-          </button>
-          <button class="delete-btn" onclick="hapusSel('${cellId}')" title="Hapus">
-            <i class="fas fa-trash-can"></i>
-          </button>
-        </div>
-      </div>
-      <div class="sagecell-content" id="${cellId}-content">
-        <pre id="${codeId}" class="sagecell-code">${kode.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
-      </div>
-    `;
-    
-    container.appendChild(cellDiv);
-    
-    // Hapus pesan empty jika ada
-    const emptyMsg = container.querySelector('.empty-message');
-    if (emptyMsg) emptyMsg.remove();
-    
-    // Inisialisasi SageMath
-    waitForSageMath(function() {
-      setTimeout(function() {
-        try {
-          sagecell.makeSagecell({
-            inputLocation: '#' + codeId,
-            template: sagecell.templates[template] || sagecell.templates.default,
-            evalButtonText: template === 'interact' ? 'Jalankan Interaktif' : 'Jalankan',
-            hide: ['editorToggle', 'permalink']
+      // ====== MathQuill Initialization ======
+      $(document).ready(function() {
+        if (window.MathQuill) {
+          MQ = MathQuill.getInterface(2);
+          
+          mathField = MQ.MathField($('#mathEditorField')[0], {
+            spaceBehavesLikeTab: true,
+            handlers: {
+              edit: function() {
+                const latex = mathField.latex();
+                $('#latexOutput').text(latex ? '\\(' + latex + '\\)' : '\\( \\)');
+              }
+            }
           });
-        } catch (e) {
-          console.error('Error creating Sage cell:', e);
+          
+          // Toolbar buttons
+          $('.latex-btn').click(function() {
+            if (!mathField) return;
+            const latex = $(this).data('latex');
+            if (latex) {
+              mathField.cmd(latex);
+              mathField.focus();
+            }
+          });
+          
+          // Copy LaTeX
+          $('#copyLatexBtn').click(function() {
+            const latex = mathField.latex();
+            if (latex) {
+              const fullLatex = '\\(' + latex + '\\)';
+              navigator.clipboard.writeText(fullLatex).then(() => {
+                alert('Kode LaTeX berhasil disalin!');
+              });
+            } else {
+              alert('Tidak ada LaTeX untuk disalin.');
+            }
+          });
+          
+          // Insert to question
+          $('#insertToQuestion').click(function() {
+            const latex = mathField.latex();
+            if (latex) {
+              const questionField = document.getElementById('question');
+              const fullLatex = '\\(' + latex + '\\)';
+              questionField.value += ' ' + fullLatex + ' ';
+              questionField.focus();
+              alert('LaTeX telah ditambahkan ke form pertanyaan.');
+            } else {
+              alert('Tidak ada LaTeX untuk disisipkan.');
+            }
+          });
+          
+          // Insert to last answer
+          $('#insertToAnswer').click(function() {
+            const latex = mathField.latex();
+            if (!latex) {
+              alert('Tidak ada LaTeX untuk disisipkan.');
+              return;
+            }
+            
+            // Cari form jawaban terakhir yang visible
+            const replyForms = document.querySelectorAll('.reply-form');
+            let lastReplyForm = null;
+            for (let i = replyForms.length - 1; i >= 0; i--) {
+              const form = replyForms[i];
+              const card = form.closest('.question-card');
+              if (card && !card.querySelector('.answers-section')?.classList.contains('hidden')) {
+                lastReplyForm = form;
+                break;
+              }
+            }
+            
+            if (lastReplyForm) {
+              const textarea = lastReplyForm.querySelector('.reply-text');
+              if (textarea) {
+                const fullLatex = '\\(' + latex + '\\)';
+                textarea.value += ' ' + fullLatex + ' ';
+                textarea.focus();
+                alert('LaTeX telah ditambahkan ke form jawaban.');
+              }
+            } else {
+              alert('Tidak ada form jawaban yang tersedia. Pastikan ada pertanyaan yang ditampilkan.');
+            }
+          });
         }
-      }, 200);
-    });
+      });
+    })();
     
-    return cellId;
-  }
-  
-  // Fungsi untuk toggle sel
-  window.toggleSel = function(cellId) {
-    const content = document.getElementById(cellId + '-content');
-    const btn = document.querySelector(`#${cellId} .toggle-btn i`);
-    if (content) {
-      if (content.style.display === 'none') {
-        content.style.display = 'block';
-        if (btn) btn.className = 'fas fa-eye';
+    // ====== SageMath Functions ======
+    function waitForSageMath(callback) {
+      if (typeof sagecell !== 'undefined' && sagecell.makeSagecell) {
+        callback();
       } else {
-        content.style.display = 'none';
-        if (btn) btn.className = 'fas fa-eye-slash';
+        setTimeout(function() { waitForSageMath(callback); }, 100);
       }
     }
-  };
-  
-  // Fungsi untuk hapus sel
-  window.hapusSel = function(cellId) {
-    if (confirm('Hapus sel ini?')) {
-      const cell = document.getElementById(cellId);
-      if (cell) {
-        cell.remove();
-        
-        // Tampilkan pesan empty jika tidak ada sel
-        const container = document.getElementById('sagecell-container');
-        if (container.children.length === 0) {
-          container.innerHTML = '<div class="empty-message"><i class="far fa-smile-wink"></i><p>Belum ada sel. Klik tombol di atas untuk menambah sel.</p></div>';
+    
+    let cellCounter = 0;
+    
+    function buatSelSageMath(kode, judul, template = 'default') {
+      cellCounter++;
+      const cellId = 'sagecell-' + cellCounter + '-' + Date.now();
+      const codeId = cellId + '-code';
+      const container = document.getElementById('sagecell-container');
+      
+      const cellDiv = document.createElement('div');
+      cellDiv.className = 'sagecell-wrapper';
+      cellDiv.id = cellId;
+      cellDiv.style.background = 'white';
+      cellDiv.style.borderRadius = '20px';
+      cellDiv.style.padding = '20px';
+      cellDiv.style.marginBottom = '25px';
+      cellDiv.style.boxShadow = '0 5px 15px -5px rgba(0,0,0,0.1)';
+      cellDiv.style.border = '1px solid #e2e8f0';
+      cellDiv.style.borderLeft = '5px solid #2b3b7a';
+      
+      cellDiv.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid #eef2ff;">
+          <span style="font-weight:600; color:#1e2b5e; display:flex; align-items:center; gap:8px;">
+            <i class="fas fa-cogs"></i> ${judul}
+          </span>
+          <div style="display:flex; gap:8px;">
+            <button class="toggle-btn" onclick="toggleSel('${cellId}')" style="border:none; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; background:#f1f5f9; color:#475569;" title="Sembunyikan/Tampilkan">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="delete-btn" onclick="hapusSel('${cellId}')" style="border:none; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; background:#f1f5f9; color:#475569;" title="Hapus">
+              <i class="fas fa-trash-can"></i>
+            </button>
+          </div>
+        </div>
+        <div class="sagecell-content" id="${cellId}-content">
+          <pre id="${codeId}" class="sagecell-code">${kode.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+        </div>
+      `;
+      
+      container.appendChild(cellDiv);
+      
+      const emptyMsg = container.querySelector('.empty-message');
+      if (emptyMsg) emptyMsg.remove();
+      
+      waitForSageMath(function() {
+        setTimeout(function() {
+          try {
+            sagecell.makeSagecell({
+              inputLocation: '#' + codeId,
+              template: sagecell.templates[template] || sagecell.templates.default,
+              evalButtonText: template === 'interact' ? 'Jalankan Interaktif' : 'Jalankan',
+              hide: ['editorToggle', 'permalink']
+            });
+          } catch (e) {
+            console.error('Error creating Sage cell:', e);
+          }
+        }, 200);
+      });
+      
+      return cellId;
+    }
+    
+    window.toggleSel = function(cellId) {
+      const content = document.getElementById(cellId + '-content');
+      const btn = document.querySelector(`#${cellId} .toggle-btn i`);
+      if (content) {
+        if (content.style.display === 'none') {
+          content.style.display = 'block';
+          if (btn) btn.className = 'fas fa-eye';
+        } else {
+          content.style.display = 'none';
+          if (btn) btn.className = 'fas fa-eye-slash';
         }
       }
-    }
-  };
-  
-  // Fungsi untuk menambah sel sederhana (Persamaan Kuadrat $ax^2+bx+c=0$)
-  window.tambahSelSederhana = function() {
-    const kode = `# Menampilkan teks dengan LaTeX
-# Masalah: simbol terangkat ke atas
-print("TANPA PERBAIKAN:")
-print(r"Persamaan Kuadrat: $ax^2+bx+c=0$ - simbol terangkat")
+    };
+    
+    window.hapusSel = function(cellId) {
+      if (confirm('Hapus sel ini?')) {
+        const cell = document.getElementById(cellId);
+        if (cell) {
+          cell.remove();
+          
+          const container = document.getElementById('sagecell-container');
+          if (container.children.length === 0) {
+            container.innerHTML = '<div class="empty-message" style="text-align:center; padding:40px; color:#94a3b8; background:#f8fafc; border-radius:16px; border:2px dashed #cbd5e1; font-style:italic;"><i class="far fa-smile-wink"></i><p>Belum ada sel. Klik tombol di atas untuk menambah sel.</p></div>';
+          }
+        }
+      }
+    };
+    
+    window.tambahSelSederhana = function() {
+      const kode = `# Menampilkan teks dengan LaTeX
+print("Persamaan Kuadrat: \\(ax^2+bx+c=0\\)")
 print("\\n" + "="*40 + "\\n")
-
-# SOLUSI 1: Menggunakan CSS inline dengan flexbox
-print("DENGAN PERBAIKAN (CSS inline):")
-from sage.misc.html import html
-display(html(r'''
-<div style="display: flex; align-items: center; gap: 6px; font-size: 16px; background: #f0fdf4; padding: 10px 15px; border-radius: 10px; margin: 10px 0;">
-    <span style="font-weight: bold; color: #059669;">✓</span>
-    <span>Persamaan Kuadrat:</span>
-    <span style="display: inline-block; vertical-align: middle;">
-        \\(ax^2+bx+c=0\\)
-    </span>
-    <span style="color: #059669;">✓ sejajar!</span>
-</div>
-'''))
-
-# SOLUSI 2: Menggunakan tabel untuk alignment yang sempurna
-print("\\nSOLUSI ALTERNATIF (menggunakan tabel):")
-display(html(r'''
-<table style="display: inline-table; vertical-align: middle; background: #eff6ff; padding: 10px 15px; border-radius: 10px;">
-    <tr style="vertical-align: middle;">
-        <td style="padding: 0 5px;"><i class="fas fa-check-circle" style="color: #2563eb;"></i></td>
-        <td style="padding: 0 5px;">Persamaan Kuadrat:</td>
-        <td style="padding: 0 5px;">\\(ax^2+bx+c=0\\)</td>
-        <td style="padding: 0 5px;">(sejajar sempurna)</td>
-    </tr>
-</table>
-'''))
-
-# SOLUSI 3: Menggunakan div dengan line-height yang disesuaikan
-print("\\nSOLUSI dengan line-height:")
-display(html(r'''
-<div style="background: #fef3c7; padding: 15px; border-radius: 10px; line-height: 1.2;">
-    <span style="display: inline-block; vertical-align: middle; font-weight: bold;">Persamaan Kuadrat:</span>
-    <span style="display: inline-block; vertical-align: middle; margin: 0 5px;">
-        \\(\\displaystyle ax^2+bx+c=0\\)
-    </span>
-    <span style="display: inline-block; vertical-align: middle; color: #92400e;">(menggunakan displaystyle)</span>
-</div>
-'''))
 
 # Contoh dengan nilai numerik
 a, b, c = 2, -5, 3
-display(html(r'''
-<div style="margin-top: 20px; display: flex; align-items: center; gap: 10px; background: #e0f2fe; padding: 12px 18px; border-radius: 30px;">
-    <i class="fas fa-square-root-alt" style="color: #0369a1;"></i>
-    <span>Contoh numerik:</span>
-    <span style="display: inline-block; vertical-align: middle;">
-        \\(%sx^2 %s %s = 0\\)
-    </span>
-    <span style="font-size: 0.9rem; color: #0369a1;">(akar-akarnya: \\(x = 1\\) dan \\(x = 1.5\\))</span>
-</div>
-''' % (a, '+' + str(b) if b >= 0 else '-' + str(abs(b)), '+' + str(c) if c >= 0 else '-' + str(abs(c)))))`;
+print("Contoh numerik: {}x^2 {} {} = 0".format(a, '+' + str(b) if b >= 0 else '-' + str(abs(b)), '+' + str(c) if c >= 0 else '-' + str(abs(c))))
+print("Akar-akarnya: x = 1 dan x = 1.5")`;
+      
+      buatSelSageMath(kode, 'Sel "Persamaan Kuadrat"', 'default');
+    };
     
-    buatSelSageMath(kode, 'Sel "Persamaan Kuadrat" dengan Perbaikan Alignment', 'default');
-  };
-  
-  // Fungsi untuk menambah sel interaktif (integral dengan plot)
-  window.tambahSelInteraktif = function() {
-    const kode = `# Sel Interaktif: Integral dan Plot Fungsi
-# Definisikan variabel x
+    window.tambahSelInteraktif = function() {
+      const kode = `# Sel Interaktif: Integral dan Plot Fungsi
 x = var('x')
 
-# Gunakan @interact untuk kontrol interaktif
 @interact
 def _(f = e^(-x^2), a=-4, b=4, auto_update=False):
-    # Hitung integral tak tentu
     q = integrate(f, x).canonicalize_radical()
-    
-    # Hitung integral tentu
     p = integrate(f, x, a, b)
-    
-    # Buat plot
     r = plot(f, (x, a, b), gridlines='minor', legend_label='Fungsi: ' + str(f), fill=True, figsize=[6,3])
     r.show()
+    print("Integral tak tentu: \\(\\int {} \\, dx = {} + c\\)".format(latex(f), latex(q)))
+    print("Integral tentu: \\(\\int_{{{}}}^{{{}}} {} \\, dx = {} \\approx {}\\)".format(a, b, latex(f), latex(p), latex(n(p))))`;
+      
+      buatSelSageMath(kode, 'Sel Interaktif - Integral dengan Plot', 'interact');
+    };
     
-    # Tampilkan hasil dengan format yang benar
-    display(html(r'''
-    <div style="background: #f0f9ff; padding: 15px; border-radius: 12px; margin-top: 15px;">
-        <h4 style="color: #1e2b5e; margin-bottom: 10px;">Hasil Perhitungan:</h4>
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-weight: 600;">Integral tak tentu:</span>
-                <span style="display: inline-block; vertical-align: middle;">\\(\\int %s \\, dx = %s+c\\)</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-weight: 600;">Integral tentu:</span>
-                <span style="display: inline-block; vertical-align: middle;">\\(\\int_{%s}^{%s} %s \\, dx = %s \\approx %s\\)</span>
-            </div>
-        </div>
-    </div>
-    ''' % (latex(f), latex(q), latex(a), latex(b), latex(f), latex(p), latex(n(p)))))`;
-    
-    buatSelSageMath(kode, 'Sel Interaktif - Integral dengan Plot', 'interact');
-  };
-  
-  // Fungsi untuk menambah sel kosong (default)
-  window.tambahSelKosong = function() {
-    const kode = `# Sel Kosong - Tulis kode Anda di sini
+    window.tambahSelKosong = function() {
+      const kode = `# Sel Kosong - Tulis kode Anda di sini
 # Contoh:
 # print("Hello World")
 # 2 + 3 * 4
 # plot(sin(x), (x, -pi, pi))
 
-# Definisikan variabel x terlebih dahulu
 x = var('x')
-
-# Contoh plot sederhana
 plot(sin(x), (x, -pi, pi), color='red', thickness=2, figsize=[6,3])`;
+      
+      buatSelSageMath(kode, 'Sel Kosong (Default)', 'default');
+    };
     
-    buatSelSageMath(kode, 'Sel Kosong (Default)', 'default');
-  };
-  
-  // Inisialisasi: tambahkan pesan empty
-  document.addEventListener('DOMContentLoaded', function() {
-    const container = document.getElementById('sagecell-container');
-    container.innerHTML = '<div class="empty-message"><i class="far fa-smile-wink"></i><p>Belum ada sel. Klik tombol di atas untuk menambah sel.</p></div>';
-    
-    // Tambahkan satu sel contoh secara otomatis setelah 1 detik
-    setTimeout(function() {
-      tambahSelSederhana();
-    }, 1000);
-  });
+    document.addEventListener('DOMContentLoaded', function() {
+      const container = document.getElementById('sagecell-container');
+      container.innerHTML = '<div class="empty-message" style="text-align:center; padding:40px; color:#94a3b8; background:#f8fafc; border-radius:16px; border:2px dashed #cbd5e1; font-style:italic;"><i class="far fa-smile-wink"></i><p>Belum ada sel. Klik tombol di atas untuk menambah sel.</p></div>';
+      
+      setTimeout(function() {
+        tambahSelSederhana();
+      }, 1000);
+    });
   </script>
 </body>
 </html>
