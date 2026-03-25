@@ -2085,14 +2085,75 @@
     };
     
     window.tambahSelSederhana = function() {
-      const kode = `# Menampilkan teks dengan LaTeX
-print("Persamaan Kuadrat: \\(ax^2+bx+c=0\\)")
-print("\\n" + "="*40 + "\\n")
+      const kode = `# Sel Interaktif: Solusi Persamaan Kuadrat dengan Visualisasi Sumbu
+x = var('x')
 
-# Contoh dengan nilai numerik
-a, b, c = 2, -5, 3
-print("Contoh numerik: {}x^2 {} {} = 0".format(a, '+' + str(b) if b >= 0 else '-' + str(abs(b)), '+' + str(c) if c >= 0 else '-' + str(abs(c))))
-print("Akar-akarnya: x = 1 dan x = 1.5")`;
+@interact
+def _(a=1, b=2, c=-3, auto_update=False):
+    # Validasi jika bukan persamaan kuadrat
+    if a == 0:
+        display(html(r"<b style='color:red;'>Peringatan:</b> $a$ tidak boleh 0."))
+        return
+
+    # Definisi fungsi sebagai fungsi simbolik agar bisa dipanggil f(x)
+    f(x) = a*x^2 + b*x + c
+    persamaan = f == 0
+    display(html(r"Persamaan: $%s$" % latex(persamaan)))
+    
+    # Hitung Diskriminan
+    D = b^2 - 4*a*c
+    display(html(r"Diskriminan: $D = %s$" % latex(D)))
+    
+    # Inisialisasi daftar titik untuk ditandai di grafik
+    titik_x = []
+    
+    # Logika Akar-akar
+    if D > 0:
+        x1 = (-b - sqrt(D)) / (2*a)
+        x2 = (-b + sqrt(D)) / (2*a)
+        display(html(r"Dua akar real: $x_1 = %s, x_2 = %s$" % (latex(x1), latex(x2))))
+        titik_x = [float(n(x1)), float(n(x2))]
+    elif D == 0:
+        x1 = -b / (2*a)
+        display(html(r"Satu akar real (kembar): $x = %s$" % latex(x1)))
+        titik_x = [float(n(x1))]
+    else:
+        display(html(r"Akar imajiner (tidak memotong sumbu-X)"))
+
+    # Menentukan rentang plot otomatis
+    vertex_x = float(n(-b/(2*a)))
+    bawah = vertex_x - 5
+    atas = vertex_x + 5
+    
+    # 1. Plot Grafik Utama
+    p = plot(f, (x, bawah, atas), thickness=2, zorder=2, 
+             legend_label=f'$y = {latex(f(x))}$', figsize=[5,3])
+    
+    # 2. Tambahkan Sumbu-X (Garis Hitam Tebal)
+    p += line([(bawah, 0), (atas, 0)], color='black', thickness=1.5, zorder=1)
+    
+    # 3. Tambahkan Sumbu-Y (Garis Hitam Tebal)
+    # Kita ambil rentang Y dari nilai fungsi di batas-batasnya
+    y_min_plot = min(float(n(f(bawah))), float(n(f(atas))), float(n(f(vertex_x)))) - 2
+    y_max_plot = max(float(n(f(bawah))), float(n(f(atas))), float(n(f(vertex_x)))) + 2
+    p += line([(0, y_min_plot), (0, y_max_plot)], color='black', thickness=1.5, zorder=1)
+    
+    # 4. Tandai Titik Potong Sumbu-X (Warna Merah)
+    for tx in titik_x:
+        p += point((tx, 0), color='red', size=50, zorder=3)
+        # Tambahkan teks label koordinat di grafik
+        p += text(f"({tx:.2f}, 0)", (tx, 0.5), color='red', fontsize=10)
+        
+    # 5. Tandai Titik Potong Sumbu-Y (Warna Ungu)
+    y_intercept = float(n(f(0)))
+    p += point((0, y_intercept), color='purple', size=50, zorder=3)
+    p += text(f"(0, {y_intercept:.2f})", (0.8, y_intercept), color='purple', fontsize=10)
+
+    # 6. Tandai Titik Puncak (Warna Hijau)
+    vertex_y = float(n(f(vertex_x)))
+    p += point((vertex_x, vertex_y), color='green', size=50, zorder=3)
+    
+    p.show(xmin=bawah, xmax=atas, ymin=y_min_plot, ymax=y_max_plot)`;
       
       buatSelSageMath(kode, 'Sel "Persamaan Kuadrat"', 'default');
     };
@@ -2107,8 +2168,8 @@ def _(f = e^(-x^2), a=-4, b=4, auto_update=False):
     p = integrate(f, x, a, b)
     r = plot(f, (x, a, b), gridlines='minor', legend_label='Fungsi: ' + str(f), fill=True, figsize=[6,3])
     r.show()
-    print("Integral tak tentu: \\(\\int {} \\, dx = {} + c\\)".format(latex(f), latex(q)))
-    print("Integral tentu: \\(\\int_{{{}}}^{{{}}} {} \\, dx = {} \\approx {}\\)".format(a, b, latex(f), latex(p), latex(n(p))))`;
+    print("Integral tak tentu: \(\int {} \, dx = {} + c\)".format(latex(f), latex(q)))
+    print("Integral tentu: \(\int_{{{}}}^{{{}}} {} \, dx = {} \approx {}\)".format(a, b, latex(f), latex(p), latex(n(p))))`;
       
       buatSelSageMath(kode, 'Sel Interaktif - Integral dengan Plot', 'interact');
     };
