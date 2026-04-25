@@ -2112,13 +2112,87 @@
     
     window.tambahSelSederhana = function() {
       const kode = `# Menampilkan teks dengan LaTeX
-print("Persamaan Kuadrat: \\(ax^2+bx+c=0\\)")
-print("\\n" + "="*40 + "\\n")
+x = var('x')
 
-# Contoh dengan nilai numerik
-a, b, c = 2, -5, 3
-print("Contoh numerik: {}x^2 {} {} = 0".format(a, '+' + str(b) if b >= 0 else '-' + str(abs(b)), '+' + str(c) if c >= 0 else '-' + str(abs(c))))
-print("Akar-akarnya: x = 1 dan x = 1.5")`;
+@interact
+def _(a=slider(-5, 5, 1, 1, label='a (koefisien x²)'),
+      b=slider(-5, 5, 1, 2, label='b (koefisien x)'),
+      c=slider(-5, 5, 1, 0, label='c (konstanta)')):
+    
+    f(x) = a*x^2 + b*x + c
+    
+    # Plot grafik fungsi
+    p = plot(f, (x, -5, 5), color='blue', thickness=2, 
+             axes_labels=['x', 'y'], gridlines=True, figsize=(6,4))
+    
+    # Diskriminan
+    D = b^2 - 4*a*c
+    
+    # Output HTML menggunakan raw string (hindari SyntaxWarning)
+    html_out = r"<h3>Fungsi: \(f(x) = {}x^2 + {}x + {}\)</h3>".format(a, b, c)
+    html_out += r"<b>Diskriminan:</b> \(D = b^2 - 4ac = {}\)<br>".format(D)
+    
+    # Kasus a = 0 (linear)
+    if a == 0:
+        if b == 0:
+            html_out += r"<b>Bukan fungsi linear (konstanta).</b><br>"
+            if c == 0:
+                html_out += r"\(f(x)=0\) (garis sumbu x)"
+            else:
+                html_out += r"\(f(x) = {}\) (garis horizontal)".format(c)
+        else:
+            akar_lin = -c / b
+            html_out += r"Fungsi linear. Akar: \(x = {:.3f}\)<br>".format(float(akar_lin))
+            p += point((float(akar_lin), 0), color='red', size=30, zorder=5)
+        show(p)
+        display(html(html_out))
+        return
+    
+    # Hitung akar simbolik
+    sqrtD = sqrt(D)
+    akar1_sim = (-b + sqrtD) / (2*a)
+    akar2_sim = (-b - sqrtD) / (2*a)
+    
+    # Sederhanakan (hanya jika ekspresi simbolik)
+    if hasattr(akar1_sim, 'simplify'):
+        akar1_sim = akar1_sim.simplify()
+    if hasattr(akar2_sim, 'simplify'):
+        akar2_sim = akar2_sim.simplify()
+    
+    # Nilai numerik 3 digit
+    if D > 0:
+        akar1_num = N(akar1_sim, digits=3)
+        akar2_num = N(akar2_sim, digits=3)
+        html_out += r"<b>Dua akar real berbeda:</b><br>"
+        html_out += r"   \(x_1 = {} \approx {}\)<br>".format(latex(akar1_sim), akar1_num)
+        html_out += r"   \(x_2 = {} \approx {}\)<br>".format(latex(akar2_sim), akar2_num)
+        # Titik akar merah
+        p += point((akar1_num, 0), color='red', size=30, zorder=5)
+        p += point((akar2_num, 0), color='red', size=30, zorder=5)
+    elif D == 0:
+        akar1_num = N(akar1_sim, digits=3)
+        html_out += r"<b>Akar real kembar (ganda):</b><br>"
+        html_out += r"   \(x = {} \approx {}\)<br>".format(latex(akar1_sim), akar1_num)
+        p += point((akar1_num, 0), color='red', size=30, zorder=5)
+    else:
+        # Akar kompleks (tidak digambar)
+        html_out += r"<b>Akar kompleks (tidak real):</b><br>"
+        html_out += r"   \(x_1 = {}\)<br>".format(latex(akar1_sim))
+        html_out += r"   \(x_2 = {}\)<br>".format(latex(akar2_sim))
+    
+    # Titik puncak
+    vertex_x = -b / (2*a)
+    vertex_y = f(vertex_x)
+    html_out += r"<b>Titik puncak:</b> \( \left( {:.3f}, {:.3f} \right) \)<br>".format(
+        float(vertex_x), float(vertex_y))
+    if a > 0:
+        html_out += "<b>Parabola terbuka ke atas</b> → titik minimum.<br>"
+    else:
+        html_out += "<b>Parabola terbuka ke bawah</b> → titik maksimum.<br>"
+    
+    # Tampilkan grafik dan teks
+    show(p)
+    display(html(html_out))`;
       
       buatSelSageMath(kode, 'Sel "Persamaan Kuadrat"', 'default');
     };
