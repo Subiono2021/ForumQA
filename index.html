@@ -2134,14 +2134,14 @@ def _(a=slider(-5, 5, 1, 1, label='a (koefisien x²)'),
     # Kasus a = 0 (fungsi linear)
     if a == 0:
         if b == 0:
-            out += r"Bukan fungsi linear (konstanta). <br>"
+            out += r"<br>Bukan fungsi linear (konstanta). <br>"
             if c != 0:
                 out += r"$f(x) = {}$ <br>".format(c)
             else:
                 out += r"$f(x)=0$ <br>"
         else:
             akar = -c / b
-            out += r"Fungsi linear. Akar: $x = {:.3f}$ <br>".format(float(akar))
+            out += r"<br>Fungsi linear. Akar: $x = {:.3f}$ <br>".format(float(akar))
             p += point((float(akar), 0), color='red', size=30, zorder=5)
         show(p)
         display(html(out))   # langsung render HTML (tanpa display)
