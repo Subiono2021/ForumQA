@@ -2184,8 +2184,7 @@ def _(a=slider(-5, 5, 1, 1, label='a (koefisien x²)'),
     # Titik puncak
     vertex_x = -b / (2*a)
     vertex_y = f(vertex_x)
-    html_out += r"<b>Titik puncak:</b> \( \left( {:.3f}, {:.3f} \right) \)<br>".format(
-        float(vertex_x), float(vertex_y))
+    html_out += r"<b>Titik puncak:</b> \( \left( {:.3f}, {:.3f} \right) \)<br>".format(float(vertex_x), float(vertex_y))
     if a > 0:
         html_out += "<b>Parabola terbuka ke atas</b> → titik minimum.<br>"
     else:
