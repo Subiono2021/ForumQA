@@ -1767,59 +1767,81 @@
         });
       }
 
-      // ====== Event delegation ======
       document.getElementById('questionsList').addEventListener('click', async (e) => {
-        const target = e.target.closest('button');
-        if (!target) return;
-        
-        e.stopPropagation();
-        
-        const deleteBtn = target.closest('.action-btn.delete');
-if (deleteBtn) {
-  const qId = deleteBtn.getAttribute('data-id');
-  if (qId) deleteQuestion(qId);
-}
+  const target = e.target.closest('button');
+  if (!target) return;
+  e.stopPropagation();
 
-const toggleBtn = target.closest('.action-btn.toggle-answers');
-if (toggleBtn) {
-  const qId = toggleBtn.getAttribute('data-id');
-  if (qId) toggleAnswers(qId);
-}
-		
-        else if (target.classList.contains('copy-original-btn')) {
-          const ansId = target.getAttribute('data-answer-id');
-          const qId = target.getAttribute('data-question-id');
-          if (ansId && qId) copyOriginalAnswer(qId, ansId);
-        }
-        else if (target.classList.contains('copy-displayed-btn')) {
-          const ansId = target.getAttribute('data-answer-id');
-          const qId = target.getAttribute('data-question-id');
-          if (ansId && qId) copyDisplayedAnswer(qId, ansId, target);
-        }
-        else if (target.classList.contains('answer-voice-btn')) {
-          const ansId = target.getAttribute('data-answer-id');
-          const qId = target.getAttribute('data-question-id');
-          if (ansId && qId) playAnswer(qId, ansId, target);
-        }
-        else if (target.classList.contains('answer-stop-btn')) {
-          stopSpeaking();
-        }
-        else if (target.classList.contains('preview-answer-btn')) {
-          const replyForm = target.closest('.reply-form');
-          const textarea = replyForm.querySelector('.reply-text');
-          const previewDiv = replyForm.querySelector('.answer-preview');
-          const text = textarea.value.trim();
-          if (text === '') {
-            previewDiv.style.display = 'none';
-            return;
-          }
-          const rendered = renderMarkdown(text);
-          previewDiv.innerHTML = rendered;
-          previewDiv.style.display = 'block';
-          if (window.MathJax) MathJax.typesetPromise([previewDiv]);
-        }
-      });
+  // Hapus pertanyaan
+  const deleteBtn = target.closest('.action-btn.delete');
+  if (deleteBtn) {
+    const qId = deleteBtn.getAttribute('data-id');
+    if (qId) deleteQuestion(qId);
+    return;
+  }
 
+  // Toggle jawaban
+  const toggleBtn = target.closest('.action-btn.toggle-answers');
+  if (toggleBtn) {
+    const qId = toggleBtn.getAttribute('data-id');
+    if (qId) toggleAnswers(qId);
+    return;
+  }
+
+  // Salin teks asli
+  const copyOriginal = target.closest('.copy-original-btn');
+  if (copyOriginal) {
+    const ansId = copyOriginal.getAttribute('data-answer-id');
+    const qId = copyOriginal.getAttribute('data-question-id');
+    if (ansId && qId) copyOriginalAnswer(qId, ansId);
+    return;
+  }
+
+  // Salin teks yang ditampilkan
+  const copyDisplayed = target.closest('.copy-displayed-btn');
+  if (copyDisplayed) {
+    const ansId = copyDisplayed.getAttribute('data-answer-id');
+    const qId = copyDisplayed.getAttribute('data-question-id');
+    if (ansId && qId) copyDisplayedAnswer(qId, ansId, copyDisplayed);
+    return;
+  }
+
+  // Voice (dengarkan)
+  const voiceBtn = target.closest('.answer-voice-btn');
+  if (voiceBtn) {
+    const ansId = voiceBtn.getAttribute('data-answer-id');
+    const qId = voiceBtn.getAttribute('data-question-id');
+    if (ansId && qId) playAnswer(qId, ansId, voiceBtn);
+    return;
+  }
+
+  // Stop voice
+  const stopBtn = target.closest('.answer-stop-btn');
+  if (stopBtn) {
+    stopSpeaking();
+    return;
+  }
+
+  // Preview jawaban
+  const previewBtn = target.closest('.preview-answer-btn');
+  if (previewBtn) {
+    const replyForm = previewBtn.closest('.reply-form');
+    if (replyForm) {
+      const textarea = replyForm.querySelector('.reply-text');
+      const previewDiv = replyForm.querySelector('.answer-preview');
+      const text = textarea.value.trim();
+      if (text === '') {
+        previewDiv.style.display = 'none';
+        return;
+      }
+      const rendered = renderMarkdown(text);
+      previewDiv.innerHTML = rendered;
+      previewDiv.style.display = 'block';
+      if (window.MathJax) MathJax.typesetPromise([previewDiv]);
+    }
+    return;
+  }
+});
       document.getElementById('questionsList').addEventListener('click', async (e) => {
         if (e.target.classList.contains('reply-submit')) {
           const replyForm = e.target.closest('.reply-form');
