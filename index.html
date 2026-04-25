@@ -2111,8 +2111,7 @@
     };
     
     window.tambahSelSederhana = function() {
-      const kode = `# Menampilkan teks dengan LaTeX
-# Sel Interaktif: Analisis Fungsi Kuadrat dengan Koefisien Integer
+      const kode = `# Sel Interaktif: Analisis Fungsi Kuadrat dengan Koefisien Integer
 x = var('x')
 
 @interact
@@ -2126,73 +2125,67 @@ def _(a=slider(-5, 5, 1, 1, label='a (koefisien x²)'),
     p = plot(f, (x, -5, 5), color='blue', thickness=2, 
              axes_labels=['x', 'y'], gridlines=True, figsize=(6,4))
     
-    # Diskriminan
     D = b^2 - 4*a*c
     
-    # Output HTML menggunakan raw string (hindari SyntaxWarning)
-    html_out = r"<h3>Fungsi: \(f(x) = {}x^2 + {}x + {}\)</h3>".format(a, b, c)
-    html_out += r"<b>Diskriminan:</b> \(D = b^2 - 4ac = {}\)<br>".format(D)
+    # Output dengan notasi $...$ (inline math)
+    out = r"Fungsi: $f(x) = {}x^2 + {}x + {}$ <br>".format(a, b, c)
+    out += r"Diskriminan: $D = {}$".format(D)
     
-    # Kasus a = 0 (linear)
+    # Kasus a = 0 (fungsi linear)
     if a == 0:
         if b == 0:
-            html_out += r"<b>Bukan fungsi linear (konstanta).</b><br>"
-            if c == 0:
-                html_out += r"\(f(x)=0\) (garis sumbu x)"
+            out += r"Bukan fungsi linear (konstanta). <br>"
+            if c != 0:
+                out += r"$f(x) = {}$ <br>".format(c)
             else:
-                html_out += r"\(f(x) = {}\) (garis horizontal)".format(c)
+                out += r"$f(x)=0$ <br>"
         else:
-            akar_lin = -c / b
-            html_out += r"Fungsi linear. Akar: \(x = {:.3f}\)<br>".format(float(akar_lin))
-            p += point((float(akar_lin), 0), color='red', size=30, zorder=5)
+            akar = -c / b
+            out += r"Fungsi linear. Akar: $x = {:.3f}$ <br>".format(float(akar))
+            p += point((float(akar), 0), color='red', size=30, zorder=5)
         show(p)
-        display(html(html_out))
+        display(html(out))   # langsung render HTML (tanpa display)
         return
     
     # Hitung akar simbolik
     sqrtD = sqrt(D)
-    akar1_sim = (-b + sqrtD) / (2*a)
-    akar2_sim = (-b - sqrtD) / (2*a)
+    akar1 = (-b + sqrtD) / (2*a)
+    akar2 = (-b - sqrtD) / (2*a)
     
-    # Sederhanakan (hanya jika ekspresi simbolik)
-    if hasattr(akar1_sim, 'simplify'):
-        akar1_sim = akar1_sim.simplify()
-    if hasattr(akar2_sim, 'simplify'):
-        akar2_sim = akar2_sim.simplify()
+    # Sederhanakan jika memungkinkan
+    if hasattr(akar1, 'simplify'):
+        akar1 = akar1.simplify()
+    if hasattr(akar2, 'simplify'):
+        akar2 = akar2.simplify()
     
-    # Nilai numerik 3 digit
     if D > 0:
-        akar1_num = N(akar1_sim, digits=3)
-        akar2_num = N(akar2_sim, digits=3)
-        html_out += r"<b>Dua akar real berbeda:</b><br>"
-        html_out += r"   \(x_1 = {} \approx {}\)<br>".format(latex(akar1_sim), akar1_num)
-        html_out += r"   \(x_2 = {} \approx {}\)<br>".format(latex(akar2_sim), akar2_num)
-        # Titik akar merah
+        akar1_num = N(akar1, digits=3)
+        akar2_num = N(akar2, digits=3)
+        out += r"<br>Dua akar real berbeda:<br>"
+        out += r"$x_1 = {} \\approx {}$ <br>".format(latex(akar1), akar1_num)
+        out += r"$x_2 = {} \\approx {}$ <br>".format(latex(akar2), akar2_num)
         p += point((akar1_num, 0), color='red', size=30, zorder=5)
         p += point((akar2_num, 0), color='red', size=30, zorder=5)
     elif D == 0:
-        akar1_num = N(akar1_sim, digits=3)
-        html_out += r"<b>Akar real kembar (ganda):</b><br>"
-        html_out += r"   \(x = {} \approx {}\)<br>".format(latex(akar1_sim), akar1_num)
-        p += point((akar1_num, 0), color='red', size=30, zorder=5)
+        akar_num = N(akar1, digits=3)
+        out += r"Akar real kembar: $x = {} \approx {}$<br>".format(latex(akar1), akar_num)
+        p += point((akar_num, 0), color='red', size=30, zorder=5)
     else:
-        # Akar kompleks (tidak digambar)
-        html_out += r"<b>Akar kompleks (tidak real):</b><br>"
-        html_out += r"   \(x_1 = {}\)<br>".format(latex(akar1_sim))
-        html_out += r"   \(x_2 = {}\)<br>".format(latex(akar2_sim))
+        out += r"<br>Akar kompleks (tidak real):<br>"
+        out += r"$x_1 = {}$<br>".format(latex(akar1))
+        out += r"$x_2 = {}$<br>".format(latex(akar2))
     
     # Titik puncak
     vertex_x = -b / (2*a)
     vertex_y = f(vertex_x)
-    html_out += r"<b>Titik puncak:</b> \( \left( {:.3f}, {:.3f} \right) \)<br>".format(float(vertex_x), float(vertex_y))
-    if a > 0:
-        html_out += "<b>Parabola terbuka ke atas</b> → titik minimum.<br>"
-    else:
-        html_out += "<b>Parabola terbuka ke bawah</b> → titik maksimum.<br>"
+    out += r"Titik puncak: $( {:.3f}, {:.3f})$ <br>".format(float(vertex_x),float(vertex_y))
+    out += r"Parabola terbuka {} → titik {}<br>".format(
+        "ke atas (minimum)" if a > 0 else "ke bawah (maksimum)",
+        "minimum" if a > 0 else "maksimum"
+    )
     
-    # Tampilkan grafik dan teks
     show(p)
-    display(html(html_out))`;
+    display(html(out))`;
       
       buatSelSageMath(kode, 'Sel "Persamaan Kuadrat"', 'default');
     };
