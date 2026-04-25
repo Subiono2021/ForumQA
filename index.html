@@ -2133,8 +2133,8 @@ def _(f = e^(-x^2), a=-4, b=4, auto_update=False):
     p = integrate(f, x, a, b)
     r = plot(f, (x, a, b), gridlines='minor', legend_label='Fungsi: ' + str(f), fill=True, figsize=[6,3])
     r.show()
-    print("Integral tak tentu: \\(\\int {} \\, dx = {} + c\\)".format(latex(f), latex(q)))
-    print("Integral tentu: \\(\\int_{{{}}}^{{{}}} {} \\, dx = {} \\approx {}\\)".format(a, b, latex(f), latex(p), latex(n(p))))`;
+    display(html(r"Integral tak tentu: \\(\\int {} \\, dx = {} + c\\)".format(latex(f), latex(q))))
+    display(html(r"Integral tentu: \\(\\int_{{{}}}^{{{}}} {} \\, dx = {} \\approx {}\\)".format(a, b, latex(f), latex(p), latex(n(p)))))`;
       
       buatSelSageMath(kode, 'Sel Interaktif - Integral dengan Plot', 'interact');
     };
