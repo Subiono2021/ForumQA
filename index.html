@@ -861,11 +861,50 @@
       background: #7c3aed;
     }
     
-    @media (max-width: 900px) {
-      .forum-grid { grid-template-columns: 1fr; }
-      .form-card { position: static; }
+    @media (max-width: 1000px) {
+      /* Perlebar kolom kanan (form) */
+      .forum-grid {
+         grid-template-columns: 1fr 1.2fr; /* sebelumnya 1fr 0.9fr */
+         gap: 32px;
+    }
+      /* Buat form card lebih lebar */
+      .form-card {
+         max-width: 700px;    /* batas maksimal agar tidak terlalu mepet ke kanan */
+         margin: 0 auto;      /* membuat form berada di tengah secara horizontal */
+         width: 100%;
+    }
       .header-title h1 { font-size: 1.8rem; }
     }
+	
+	/* Area pertanyaan (textarea) */
+#question,
+.input-group textarea {
+  min-height: 220px;        /* lebih tinggi agar mudah menulis panjang */
+  min-width: 200px;          /* biar tidak terlalu kecil saat ditarik ke kiri */
+  max-width: 100%;           /* tidak melebihi container form */
+  padding: 18px 20px;
+  font-size: 1rem;
+  border-radius: 28px;
+  border-width: 2px;
+  transition: all 0.2s;
+  resize: both;         /* user bisa menarik sudut kanan bawah */
+  cursor: text;
+}
+
+#question:focus {
+  border-color: #2b3b7a;
+  box-shadow: 0 0 0 5px rgba(43,59,122,0.2);
+  background: white;
+  outline: none;
+}
+
+.preview-btn {
+  width: 100%;
+  justify-content: center;
+  padding: 12px;
+}
+
+	
   </style>
 </head>
 <body>
@@ -1533,19 +1572,11 @@
                     </div>
                     <div class="answer-text">${ansText}</div>
                     <div class="answer-actions">
-                      <div class="copy-dropdown">
-                        <button class="copy-dropdown-btn" title="Salin jawaban">
-                          <i class="fas fa-copy"></i> Salin <i class="fas fa-chevron-up" style="font-size: 0.7rem;"></i>
-                        </button>
-                        <div class="copy-dropdown-content">
-                          <button class="copy-original-btn" data-answer-id="${ans.id}" data-question-id="${q.id}">
-                            <i class="fas fa-file-code"></i> Salin Teks Asli (Raw)
-                          </button>
-                          <button class="copy-displayed-btn" data-answer-id="${ans.id}" data-question-id="${q.id}">
-                            <i class="fas fa-language"></i> Salin Teks yang Ditampilkan
-                          </button>
-                        </div>
-                      </div>
+					
+                      <button class="answer-copy-original-btn" data-answer-id="${ans.id}" data-question-id="${q.id}" title="Salin teks asli (raw)">
+                      <i class="fas fa-copy"></i> Salin
+                      </button>
+					  
                       <button class="answer-voice-btn" data-answer-id="${ans.id}" data-question-id="${q.id}" title="Dengarkan jawaban"><i class="fas fa-headphones"></i> Dengarkan</button>
                       <button class="answer-stop-btn" title="Hentikan"><i class="fas fa-stop"></i> Hentikan</button>
                     </div>
@@ -1788,24 +1819,16 @@
     return;
   }
 
-  // Salin teks asli
-  const copyOriginal = target.closest('.copy-original-btn');
-  if (copyOriginal) {
-    const ansId = copyOriginal.getAttribute('data-answer-id');
-    const qId = copyOriginal.getAttribute('data-question-id');
-    if (ansId && qId) copyOriginalAnswer(qId, ansId);
-    return;
-  }
+  // Tombol Salin (langsung copy raw)
+const copyRawBtn = target.closest('.answer-copy-original-btn');
+if (copyRawBtn) {
+  const ansId = copyRawBtn.getAttribute('data-answer-id');
+  const qId = copyRawBtn.getAttribute('data-question-id');
+  if (ansId && qId) copyOriginalAnswer(qId, ansId);
+  return;
+}
 
-  // Salin teks yang ditampilkan
-  const copyDisplayed = target.closest('.copy-displayed-btn');
-  if (copyDisplayed) {
-    const ansId = copyDisplayed.getAttribute('data-answer-id');
-    const qId = copyDisplayed.getAttribute('data-question-id');
-    if (ansId && qId) copyDisplayedAnswer(qId, ansId, copyDisplayed);
-    return;
-  }
-
+  
   // Voice (dengarkan)
   const voiceBtn = target.closest('.answer-voice-btn');
   if (voiceBtn) {
@@ -2134,14 +2157,14 @@ def _(a=slider(-5, 5, 1, 1, label='a (koefisien x²)'),
     # Kasus a = 0 (fungsi linear)
     if a == 0:
         if b == 0:
-            out += r"<br>Bukan fungsi linear (konstanta). <br>"
+            out += r"Bukan fungsi linear (konstanta). <br>"
             if c != 0:
                 out += r"$f(x) = {}$ <br>".format(c)
             else:
                 out += r"$f(x)=0$ <br>"
         else:
             akar = -c / b
-            out += r"<br>Fungsi linear. Akar: $x = {:.3f}$ <br>".format(float(akar))
+            out += r"Fungsi linear. Akar: $x = {:.3f}$ <br>".format(float(akar))
             p += point((float(akar), 0), color='red', size=30, zorder=5)
         show(p)
         display(html(out))   # langsung render HTML (tanpa display)
@@ -2230,3 +2253,4 @@ plot(sin(x), (x, -pi, pi), color='red', thickness=2, figsize=[6,3])`;
   </script>
 </body>
 </html>
+
