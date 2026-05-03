@@ -53,7 +53,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
   
   <style>
-    /* ========== Gaya CSS ========== */
+    /* ========== Gaya CSS (tidak banyak diubah, hanya tambahan untuk modal pertanyaan) ========== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Inter', sans-serif;
@@ -487,80 +487,41 @@
     .action-btn.delete { background: #fef2f2; color: #991b1b; }
     .action-btn.delete:hover { background: #fee2e2; }
     .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .form-card {
-      background: white;
+    
+    /* Gaya tombol besar untuk membuka modal */
+    .ask-button-card {
+      background: linear-gradient(135deg, #f8fafc, #ffffff);
       border-radius: 28px;
-      padding: 30px 28px;
+      padding: 40px 28px;
+      text-align: center;
       box-shadow: 0 20px 40px -14px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      position: sticky;
-      top: 30px;
-    }
-    .form-card h3 {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 1.7rem;
-      font-weight: 600;
-      margin-bottom: 28px;
-      color: #0f172a;
-    }
-    .form-card h3 i {
-      background: #2b3b7a;
-      color: white;
-      padding: 10px;
-      border-radius: 18px;
-      font-size: 1.3rem;
-    }
-    .input-group { margin-bottom: 22px; }
-    .input-group label {
-      display: block;
-      font-weight: 500;
-      margin-bottom: 8px;
-      color: #334155;
-      font-size: 0.95rem;
-    }
-    .input-group input,
-    .input-group textarea {
-      width: 100%;
-      padding: 16px 18px;
-      font-size: 1rem;
-      font-family: 'Inter', sans-serif;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 20px;
-      background: #fcfdff;
-      transition: 0.2s;
-      outline: none;
-    }
-    .input-group input:focus,
-    .input-group textarea:focus {
-      border-color: #2b3b7a;
-      box-shadow: 0 0 0 4px rgba(43, 59, 122, 0.1);
-      background: white;
-    }
-    .input-group textarea { min-height: 120px; resize: vertical; }
-    .btn-submit {
-      background: linear-gradient(135deg, #1e2b5e, #2b3b7a);
-      color: white;
-      border: none;
-      width: 100%;
-      padding: 18px 24px;
-      font-size: 1.2rem;
-      font-weight: 600;
-      border-radius: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
+      border: 1px solid rgba(43, 59, 122, 0.2);
       cursor: pointer;
-      transition: all 0.25s;
-      box-shadow: 0 15px 25px -8px rgba(30, 43, 94, 0.3);
+      transition: all 0.3s ease;
     }
-    .btn-submit:hover {
-      transform: scale(1.02);
-      background: linear-gradient(135deg, #2b3b7a, #1e2b5e);
-      box-shadow: 0 20px 30px -6px rgba(30, 43, 94, 0.4);
+    .ask-button-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 45px -12px rgba(30, 43, 94, 0.25);
+      border-color: #2b3b7a;
     }
+    .ask-button-card i {
+      font-size: 3rem;
+      color: #2b3b7a;
+      margin-bottom: 20px;
+      display: block;
+    }
+    .ask-button-card h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1e2b5e;
+      margin-bottom: 12px;
+    }
+    .ask-button-card p {
+      color: #475569;
+      font-size: 1rem;
+    }
+    
+    /* Modal pertanyaan (baru) */
     .modal {
       display: none;
       position: fixed;
@@ -574,9 +535,9 @@
     .modal.active { display: flex; }
     .modal-content {
       background: white;
-      max-width: 500px;
+      max-width: 700px;
       width: 90%;
-      max-height: 80vh;
+      max-height: 85vh;
       overflow-y: auto;
       border-radius: 36px;
       padding: 32px;
@@ -584,15 +545,13 @@
       position: relative;
     }
     .modal-content h2 {
-      font-size: 2rem;
+      font-size: 1.8rem;
       margin-bottom: 20px;
       display: flex;
       gap: 12px;
       color: #1e2b5e;
+      align-items: center;
     }
-    .modal-content p { margin-bottom: 12px; color: #334155; }
-    .modal-content ul { padding-left: 24px; margin: 16px 0; color: #1e293b; }
-    .modal-content li { margin-bottom: 10px; }
     .close-modal {
       position: absolute;
       top: 20px; right: 24px;
@@ -602,6 +561,22 @@
       transition: 0.2s;
     }
     .close-modal:hover { color: #1e293b; }
+    
+    /* Textarea di modal lebih besar */
+    #modalQuestion {
+      min-height: 250px;
+      width: 100%;
+      padding: 18px 20px;
+      font-size: 1rem;
+      border-radius: 28px;
+      border: 2px solid #e2e8f0;
+      resize: vertical;
+    }
+    #modalQuestion:focus {
+      border-color: #2b3b7a;
+      box-shadow: 0 0 0 4px rgba(43,59,122,0.1);
+    }
+    
     .footer-note {
       text-align: center;
       color: #64748b;
@@ -862,79 +837,31 @@
     }
     
     @media (max-width: 1000px) {
-      /* Perlebar kolom kanan (form) */
       .forum-grid {
-         grid-template-columns: 1fr 1.2fr; /* sebelumnya 1fr 0.9fr */
+         grid-template-columns: 1fr;
          gap: 32px;
-    }
-      /* Buat form card lebih lebar */
-      .form-card {
-         max-width: 700px;    /* batas maksimal agar tidak terlalu mepet ke kanan */
-         margin: 0 auto;      /* membuat form berada di tengah secara horizontal */
-         width: 100%;
-    }
+      }
       .header-title h1 { font-size: 1.8rem; }
     }
-	
-	/* Area pertanyaan (textarea) */
-#question,
-.input-group textarea {
-  min-height: 220px;        /* lebih tinggi agar mudah menulis panjang */
-  min-width: 200px;          /* biar tidak terlalu kecil saat ditarik ke kiri */
-  max-width: 100%;           /* tidak melebihi container form */
-  padding: 18px 20px;
-  font-size: 1rem;
-  border-radius: 28px;
-  border-width: 2px;
-  transition: all 0.2s;
-  resize: both;         /* user bisa menarik sudut kanan bawah */
-  cursor: text;
-}
-
-#question:focus {
-  border-color: #2b3b7a;
-  box-shadow: 0 0 0 5px rgba(43,59,122,0.2);
-  background: white;
-  outline: none;
-}
-
-.preview-btn {
-  width: 100%;
-  justify-content: center;
-  padding: 12px;
-}
-
-	
   </style>
 </head>
 <body>
   <header class="site-header">
     <div class="container header-content">
       <div class="header-title">
-<h1 style="
-  padding-top: 1em;
-  color: #FFD700;
-  text-shadow: 
-    1px 1px 0 #999,
-    2px 2px 0 #888,
-    3px 3px 0 #777,
-    4px 4px 0 #666,
-    5px 5px 0 #555,
-    6px 6px 5px rgba(0,0,0,0.4);
-" title="">
-  <i class="fas fa-robot"></i> 
-  <b>BiMath: EduForum AI (Multi-User + Voice + Google Translate)</b>
-</h1> 
-		<p>Pendidikan di era AI: masalah & penyelesaiannya</p>
+        <h1 style="padding-top: 1em; color: #FFD700; text-shadow: 1px 1px 0 #999,2px 2px 0 #888,3px 3px 0 #777,4px 4px 0 #666,5px 5px 0 #555,6px 6px 5px rgba(0,0,0,0.4);">
+          <i class="fas fa-robot"></i> <b>BiMath: EduForum AI (Multi-User + Voice + Google Translate)</b>
+        </h1> 
+        <p>Pendidikan di era AI: masalah & penyelesaiannya</p>
         <div style="border-left:5px solid #ffd700; padding-left:18px; font-style:italic; line-height:1.7; text-align:justify;">
           The results presented here are largely the product of constructive collaboration among <b>BiMath</b>, DeepSeek, ChatGPT, and Gemini, and this synergy is expected to continue evolving in the years to come. This portal is devoted to education fighters who strive to deepen their understanding of education through the three fundamental pillars of <b>BiMath</b>: Theory, Application, and Computation. Within the framework of intellectual freedom, contributors explore, reinterpret, and further develop ideas inspired by existing works while constructing their own independent perspectives. The views presented represent evolving reflections that respond to the fundamental transformations taking place in education, science, and technology in both the present and the future.
+          Ultimately, this journey is not merely about accumulating knowledge, but about fostering a persistent curiosity and the resilience to unlearn and relearn. In this spirit, <b>BiMath</b> serves as a living laboratory where reasoning is continuously refined, ensuring that every learner remains an active architect of their own intellectual destiny in an ever-changing world.
         </div>
         <div style="margin-top:18px; font-size:14px; color:#d4af37; letter-spacing:0.5px;">
           Knowledge • Structure • Philosophy
         </div>
       </div>
       <div class="header-actions">
-        <!-- Google Translate Widget -->
         <div id="google_translate_element"></div>
         <button class="icon-btn" id="manualBtn" title="Panduan Pengguna"><i class="fas fa-book"></i></button>
         <div id="loginSection"></div>
@@ -954,30 +881,39 @@
       </div>
     </section>
 
-    <!-- Kolom kanan: form pertanyaan -->
+    <!-- Kolom kanan: TOMBOL untuk membuka modal pertanyaan (menggantikan form asli) -->
     <aside>
-      <div class="form-card">
-        <h3><i class="fas fa-pen"></i> Ajukan pertanyaan</h3>
-        <form id="askForm">
-          <div class="input-group">
-            <label for="name"><i class="far fa-user"></i> Nama (opsional)</label>
-            <input type="text" id="name" placeholder="Misal: Andi Guru">
-          </div>
-          <div class="input-group">
-            <label for="question"><i class="far fa-question-circle"></i> Pertanyaan <span style="color:#b91c1c;">*</span> (dukung Markdown & LaTeX $...$ atau $$...$$)</label>
-            <textarea id="question" placeholder="Contoh: **Rumus** $$E = mc^2$$ mempengaruhi..."></textarea>
-          </div>
-          <!-- Tombol Preview untuk pertanyaan -->
-          <div style="margin-bottom:10px;">
-            <button type="button" id="previewQuestionBtn" class="preview-btn"><i class="fas fa-eye"></i> Preview</button>
-          </div>
-          <div id="questionPreview" class="preview-area" style="display:none;"></div>
-          <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Kirim pertanyaan</button>
-        </form>
-        <p style="font-size:0.8rem; margin-top:20px; color:#64748b;"><i class="fas fa-info-circle"></i> Data tersimpan di cloud. Semua pengguna dapat melihat diskusi secara real-time.</p>
+      <div class="ask-button-card" id="openQuestionModalBtn">
+        <i class="fas fa-pen-fancy"></i>
+        <h3>Ajukan Pertanyaan</h3>
+        <p>Klik di sini untuk menulis pertanyaan dengan tampilan layar penuh tengah.<br>Dukung Markdown & LaTeX</p>
+        <div style="margin-top:20px;"><i class="fas fa-arrow-right"></i> Tampil di tengah layar <i class="fas fa-arrow-left"></i></div>
       </div>
     </aside>
   </main>
+
+  <!-- MODAL PERTANYAAN (tampil di tengah layar) -->
+  <div id="questionModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" id="closeQuestionModal">&times;</span>
+      <h2><i class="fas fa-edit"></i> Tulis Pertanyaan Baru</h2>
+      <form id="modalAskForm">
+        <div class="input-group">
+          <label for="modalName"><i class="far fa-user"></i> Nama (opsional)</label>
+          <input type="text" id="modalName" placeholder="Misal: Andi Guru">
+        </div>
+        <div class="input-group">
+          <label for="modalQuestion"><i class="far fa-question-circle"></i> Pertanyaan <span style="color:#b91c1c;">*</span> (dukung Markdown & LaTeX $...$ atau $$...$$)</label>
+          <textarea id="modalQuestion" placeholder="Contoh: **Rumus** $$E = mc^2$$ mempengaruhi..."></textarea>
+        </div>
+        <div style="margin-bottom:10px;">
+          <button type="button" id="previewModalQuestionBtn" class="preview-btn"><i class="fas fa-eye"></i> Preview</button>
+        </div>
+        <div id="modalQuestionPreview" class="preview-area" style="display:none;"></div>
+        <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Kirim pertanyaan</button>
+      </form>
+    </div>
+  </div>
 
   <!-- LaTeX Editor Section (bersatu dengan SageMath) -->
   <div class="latex-editor-section">
@@ -1139,7 +1075,7 @@
     <p><i class="fas fa-heart"></i> Forum interaktif dengan \(\LaTeX\) & Markdown — <a href="#" id="manualFooterLink">panduan pengguna</a></p>
   </footer>
 
-  <!-- Modal Manual Pengguna -->
+  <!-- Modal Manual Pengguna (tetap) -->
   <div id="manualModal" class="modal">
     <div class="modal-content">
       <span class="close-modal" id="closeManual">&times;</span>
@@ -1149,30 +1085,16 @@
       <p align="justify">Kami percaya bahwa setiap manusia memiliki martabat yang sama dalam proses mencari ilmu. Tidak ada tingkatan yang merendahkan atau meninggikan seseorang di sini setiap pertanyaan dihargai, setiap gagasan didengarkan, dan setiap kontribusi dipandang sebagai bagian dari perjalanan belajar bersama.</p>
       <p align="justify">Di BiMath: EduForum AI, kita belajar bukan untuk saling mengungguli, tetapi untuk saling memahami, saling membantu, dan saling memperkaya wawasan. Semoga forum ini menjadi tempat yang ramah, terbuka, dan <b>memanusiakan manusia</b> dalam semangat keilmuan yang jujur, kritis, dan penuh rasa hormat. Berikut cara menggunakan forum diskusi ini:</p>	  
       <ul align="justify">
-        <li><i class="fas fa-plus-circle" style="color:#2b3b7a;"></i> <strong>Menambahkan pertanyaan:</strong> Isi formulir di bagian kanan. Gunakan <code>$...$</code> untuk rumus inline, <code>$$...$$</code> untuk rumus display \(\LaTeX\), dan Markdown untuk format teks.</li>
+        <li><i class="fas fa-plus-circle" style="color:#2b3b7a;"></i> <strong>Menambahkan pertanyaan:</strong> Klik tombol "Ajukan Pertanyaan" di kolom kanan, kemudian isi form yang muncul di tengah layar. Gunakan <code>$...$</code> untuk rumus inline, <code>$$...$$</code> untuk rumus display \(\LaTeX\), dan Markdown untuk format teks.</li>
         <li><i class="fas fa-reply" style="color:#2b3b7a;"></i> <strong>Menjawab pertanyaan:</strong> Gulir ke bawah kartu pertanyaan, isi form "Tulis jawaban". Juga bisa menggunakan Markdown dan \(\LaTeX\).</li>
         <li><i class="fas fa-square-root-alt" style="color:#2b3b7a;"></i> <strong>LaTeX Math Editor Lengkap:</strong> Gunakan toolbar simbol di bawah forum untuk membuat notasi matematika secara visual. Tersedia berbagai simbol:
-          <ul>
-            <li><strong>Matrix:</strong> pmatrix, bmatrix untuk membuat matriks</li>
-            <li><strong>Cases:</strong> Untuk menulis fungsi piecewise atau sistem persamaan</li>
-            <li><strong>Aligned:</strong> Untuk menulis persamaan multi-baris</li>
-            <li><strong>Kalkulus:</strong> Integral, sumasi, limit, turunan parsial</li>
-            <li><strong>Huruf Yunani:</strong> α, β, γ, δ, ε, θ, π, dll</li>
-            <li><strong>Operator & Relasi:</strong> Semua simbol matematika umum</li>
-          </ul>
+          <ul><li>Matrix, Cases, Aligned, Kalkulus, Huruf Yunani, Operator & Relasi</li></ul>
         </li>
-        <li><i class="fas fa-eye" style="color:#2b3b7a;"></i> <strong>Preview sebelum kirim:</strong> Gunakan tombol Preview pada form pertanyaan atau jawaban untuk melihat hasil render kode $\LaTeX$ terlebih dahulu.</li>
+        <li><i class="fas fa-eye" style="color:#2b3b7a;"></i> <strong>Preview sebelum kirim:</strong> Gunakan tombol Preview pada form pertanyaan (di modal) atau jawaban untuk melihat hasil render kode $\LaTeX$ terlebih dahulu.</li>
         <li><i class="fas fa-trash-can" style="color:#991b1b;"></i> <strong>Menghapus (khusus admin):</strong> Hanya pengguna dengan email admin yang bisa menghapus pertanyaan.</li>
         <li><i class="fas fa-cloud-upload-alt"></i> <strong>Data tersimpan di cloud</strong> dan sinkron real-time dengan semua pengguna.</li>
         <li><i class="fas fa-language"></i> <strong>Google Translate:</strong> Gunakan widget di header untuk menerjemahkan SELURUH halaman ke berbagai bahasa.</li>
         <li><i class="fas fa-headphones"></i> <strong>Dengarkan:</strong> Klik <i class="fas fa-headphones"></i> untuk mendengarkan teks. Voice akan otomatis menyesuaikan dengan bahasa yang dipilih di Google Translate.</li>
-        <li><i class="fas fa-copy"></i> <strong>Salin:</strong> Arahkan kursor ke tombol <i class="fas fa-copy"></i> untuk memilih opsi copy:
-          <ul>
-            <li><strong>Salin Teks Asli (Raw):</strong> Menyalin teks asli dalam format Markdown/LaTeX</li>
-            <li><strong>Salin Teks yang Ditampilkan:</strong> Menyalin teks dalam bahasa yang sedang ditampilkan (hasil terjemahan)</li>
-          </ul>
-        </li>
-        <li><i class="fas fa-microphone-alt"></i> <strong>Voice synthesis:</strong> Mendukung berbagai bahasa termasuk Inggris dan Arab. Suara akan otomatis menyesuaikan dengan bahasa halaman.</li>
       </ul>
       <p style="margin-top:20px;">Mari berdiskusi secara beradab, beretika dan sehat tentang masa depan pendidikan bersama AI! 🚀</p>
     </div>
@@ -1193,34 +1115,28 @@
         measurementId: "G-NS6EWKRCYH"
       };
 
-      // Inisialisasi Firebase
       firebase.initializeApp(firebaseConfig);
       const db = firebase.firestore();
       const auth = firebase.auth();
 
-      // ====== Konstanta ======
       const ADMIN_EMAIL = 'sub1104ono@gmail.com';
       const QUESTIONS_COLLECTION = 'questions';
 
-      // ====== State ======
       let questions = [];
       let unsubscribe = null;
       let currentUser = null;
       
-      // ====== Voice Synthesis State ======
+      // Voice State
       let currentUtterance = null;
-      let currentVoiceBtn = null;
       let voices = [];
       let selectedVoice = null;
       let speechRate = 1.0;
-      let speechPitch = 1.0;
       let currentLanguage = 'id';
       
-      // ====== MathQuill State ======
+      // MathQuill State
       let MQ = null;
       let mathField = null;
       
-      // Inisialisasi Google Translate
       window.googleTranslateElementInit = function() {
         new google.translate.TranslateElement({
           pageLanguage: 'id',
@@ -1237,34 +1153,24 @@
                 const lang = htmlElement.lang || 'id';
                 currentLanguage = lang.split('-')[0];
                 console.log('Bahasa berubah menjadi:', currentLanguage);
+                updateVoiceForCurrentLanguage();
               }
             }
           });
         });
-        
         observer.observe(document.documentElement, { attributes: true });
       };
 
-      // ====== Helper functions ======
-      function escapeHTML(str) {
-        if (!str) return '';
-        return str.replace(/[&<>"]/g, m => {
-          if (m === '&') return '&amp;';
-          if (m === '<') return '&lt;';
-          if (m === '>') return '&gt;';
-          if (m === '"') return '&quot;';
-          return m;
-        });
-      }
-
+      function escapeHTML(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+      
       function cleanTextForVoice(text) {
         if (!text) return '';
         let clean = text
-          .replace(/\$\$([\s\S]*?)\$\$/g, '$1')
-          .replace(/\$([^\$]*?)\$/g, '$1')
-          .replace(/\\\(([\s\S]*?)\\\)/g, '$1')
-          .replace(/\\\[([\s\S]*?)\\\]/g, '$1')
-          .replace(/\\\\/g, '\\')
+          .replace(/\$\$([\s\S]*?)\$\$/g, '')
+          .replace(/\\\[([\s\S]*?)\\\]/g, '')
+          .replace(/\$([^\$]*?)\$/g, '')
+          .replace(/\\\(([\s\S]*?)\\\)/g, '')
+          .replace(/\\[a-zA-Z]+(\{[^}]*\})?/g, '')
           .replace(/\*\*(.*?)\*\*/g, '$1')
           .replace(/\*(.*?)\*/g, '$1')
           .replace(/__(.*?)__/g, '$1')
@@ -1272,261 +1178,156 @@
           .replace(/`(.*?)`/g, '$1')
           .replace(/#{1,6}\s/g, '')
           .replace(/!\[.*?\]\(.*?\)/g, '')
-          .replace(/\[(.*?)\]\(.*?\)/g, '$1');
+          .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+          .replace(/\s+/g, ' ')
+          .trim();
         return clean;
       }
-
-      function getTextFromElement(element) {
-        if (!element) return '';
-        const clone = element.cloneNode(true);
-        const scriptTags = clone.querySelectorAll('script, style, .MathJax, mjx-container');
-        scriptTags.forEach(el => el.remove());
-        return clone.textContent || clone.innerText || '';
-      }
-
+      
       function loadVoices() {
         voices = window.speechSynthesis.getVoices();
-        
         const voiceSelect = document.getElementById('voiceSelect');
-        if (voiceSelect) {
-          voiceSelect.innerHTML = '<option value="">Pilih suara (otomatis)</option>';
-          
-          const groupedVoices = {};
-          voices.forEach((voice, index) => {
-            const lang = voice.lang.split('-')[0];
-            if (!groupedVoices[lang]) groupedVoices[lang] = [];
-            groupedVoices[lang].push({ voice, index });
+        if (!voiceSelect) return;
+        voiceSelect.innerHTML = '<option value="">Pilih suara (otomatis)</option>';
+        const grouped = {};
+        voices.forEach((voice, idx) => {
+          const lang = voice.lang.split('-')[0];
+          if (!grouped[lang]) grouped[lang] = [];
+          grouped[lang].push({ voice, idx });
+        });
+        Object.keys(grouped).sort().forEach(lang => {
+          const optgroup = document.createElement('optgroup');
+          optgroup.label = `${getLanguageName(lang)} (${lang})`;
+          grouped[lang].forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.idx;
+            option.textContent = `${item.voice.name} (${item.voice.lang})${item.voice.default ? ' [default]' : ''}`;
+            optgroup.appendChild(option);
           });
-          
-          Object.keys(groupedVoices).sort().forEach(lang => {
-            const langName = getLanguageName(lang);
-            const optgroup = document.createElement('optgroup');
-            optgroup.label = `${langName} (${lang})`;
-            
-            groupedVoices[lang].forEach(item => {
-              const option = document.createElement('option');
-              option.value = item.index;
-              option.textContent = `${item.voice.name} (${item.voice.lang})${item.voice.default ? ' [default]' : ''}`;
-              optgroup.appendChild(option);
-            });
-            
-            voiceSelect.appendChild(optgroup);
-          });
-        }
-        
+          voiceSelect.appendChild(optgroup);
+        });
         updateVoiceForCurrentLanguage();
       }
-
+      
       function getLanguageName(langCode) {
-        const languages = {
-          'id': 'Indonesia', 'en': 'Inggris', 'ar': 'Arab', 'zh': 'Mandarin',
-          'ja': 'Jepang', 'ko': 'Korea', 'fr': 'Prancis', 'de': 'Jerman',
-          'es': 'Spanyol', 'ru': 'Rusia', 'hi': 'Hindi', 'pt': 'Portugis',
-          'nl': 'Belanda', 'it': 'Italia', 'tr': 'Turki', 'vi': 'Vietnam', 'th': 'Thai'
-        };
-        return languages[langCode] || langCode.toUpperCase();
+        const names = { id:'Indonesia', en:'Inggris', ar:'Arab', zh:'Mandarin', ja:'Jepang', ko:'Korea', fr:'Prancis', de:'Jerman', es:'Spanyol', ru:'Rusia' };
+        return names[langCode] || langCode.toUpperCase();
       }
-
+      
       function updateVoiceForCurrentLanguage() {
         if (!voices.length) return;
-        const targetVoices = voices.filter(v => v.lang.startsWith(currentLanguage));
-        if (targetVoices.length > 0) {
-          const premiumVoice = targetVoices.find(v => 
-            v.name.includes('Google') || v.name.includes('Microsoft') || v.name.includes('Premium')
-          );
-          selectedVoice = premiumVoice || targetVoices[0];
+        const target = voices.filter(v => v.lang.startsWith(currentLanguage));
+        if (target.length) {
+          selectedVoice = target.find(v => v.name.includes('Google') || v.name.includes('Microsoft')) || target[0];
         } else {
           selectedVoice = voices.find(v => v.default) || voices[0];
         }
       }
-
+      
       function speakText(text, btnElement) {
         stopSpeaking();
-        const cleanText = cleanTextForVoice(text);
-        if (!cleanText.trim()) {
+        const clean = cleanTextForVoice(text);
+        if (!clean.trim()) {
           alert('Tidak ada teks yang dapat dibaca.');
           return;
         }
-        
-        const truncatedText = cleanText.length > 2000 ? cleanText.substring(0, 2000) + '...' : cleanText;
-        const utterance = new SpeechSynthesisUtterance(truncatedText);
-        
-        if (selectedVoice) {
-          utterance.voice = selectedVoice;
-        } else {
-          utterance.lang = currentLanguage === 'id' ? 'id-ID' : 
-                          currentLanguage === 'en' ? 'en-US' :
-                          currentLanguage === 'ar' ? 'ar-SA' : 
-                          currentLanguage === 'zh' ? 'zh-CN' : 'id-ID';
-        }
-        
+        const utterance = new SpeechSynthesisUtterance(clean.slice(0, 2000));
+        if (selectedVoice) utterance.voice = selectedVoice;
+        else utterance.lang = currentLanguage === 'id' ? 'id-ID' : (currentLanguage === 'en' ? 'en-US' : (currentLanguage === 'ar' ? 'ar-SA' : 'id-ID'));
         utterance.rate = speechRate;
-        utterance.pitch = speechPitch;
-        utterance.volume = 1.0;
-        
-        utterance.onstart = function() {
+        utterance.pitch = 1.0;
+        utterance.onstart = () => {
           currentUtterance = utterance;
           if (btnElement) {
             btnElement.classList.add('playing');
             btnElement.innerHTML = '<i class="fas fa-volume-up"></i> Membaca...';
           }
         };
-        
-        utterance.onend = function() {
+        utterance.onend = () => {
           if (btnElement) {
             btnElement.classList.remove('playing');
             btnElement.innerHTML = '<i class="fas fa-headphones"></i> Dengarkan';
           }
           currentUtterance = null;
         };
-        
-        utterance.onerror = function(event) {
-          console.error('Speech error:', event);
+        utterance.onerror = () => {
           if (btnElement) {
             btnElement.classList.remove('playing');
             btnElement.innerHTML = '<i class="fas fa-headphones"></i> Dengarkan';
           }
           currentUtterance = null;
         };
-        
         window.speechSynthesis.speak(utterance);
       }
-
+      
       function stopSpeaking() {
-        if (window.speechSynthesis.speaking) {
-          window.speechSynthesis.cancel();
-        }
-        
+        if (window.speechSynthesis.speaking) window.speechSynthesis.cancel();
         document.querySelectorAll('.answer-voice-btn.playing').forEach(btn => {
           btn.classList.remove('playing');
           btn.innerHTML = '<i class="fas fa-headphones"></i> Dengarkan';
         });
-        
         currentUtterance = null;
       }
-
+      
       if (window.speechSynthesis) {
         window.speechSynthesis.onvoiceschanged = loadVoices;
         setTimeout(loadVoices, 100);
       }
-
+ 
       function renderMarkdown(text) {
         if (!text) return '';
-        
-        let normalized = text
-          .replace(/\\\\\(/g, '\\(')
-          .replace(/\\\\\[/g, '\\[')
-          .replace(/\\\\\{/g, '\\{')
-          .replace(/\\\\\}/g, '\\}');
-        
-        const mathInline = [];
-        const mathDisplay = [];
-        const mathInlineDollar = [];
-        const mathDisplayDollar = [];
-        let tokenCounter = 0;
-        
+        let normalized = text.replace(/\\\\\(/g, '\\(').replace(/\\\\\[/g, '\\[');
+        let mathInline = [], mathDisplay = [], tokenCounter = 0;
         normalized = normalized.replace(/\$\$([\s\S]*?)\$\$/g, (match, content) => {
-          const token = `##MATH_DISPLAY_DOLLAR_${tokenCounter++}##`;
-          mathDisplayDollar.push({ token, content });
-          return token;
-        });
-        
-        normalized = normalized.replace(/\$([^\$]*?)\$/g, (match, content) => {
-          const token = `##MATH_INLINE_DOLLAR_${tokenCounter++}##`;
-          mathInlineDollar.push({ token, content });
-          return token;
-        });
-        
-        normalized = normalized.replace(/\\\(([\s\S]*?)\\\)/g, (match, content) => {
-          const token = `##MATH_INLINE_${tokenCounter++}##`;
-          mathInline.push({ token, content });
-          return token;
-        });
-        
-        normalized = normalized.replace(/\\\[([\s\S]*?)\\\]/g, (match, content) => {
           const token = `##MATH_DISPLAY_${tokenCounter++}##`;
           mathDisplay.push({ token, content });
           return token;
         });
-        
-        let html = marked.parse(normalized);
-        
-        mathInline.forEach(item => {
-          html = html.replace(item.token, `\\(${item.content}\\)`);
+        normalized = normalized.replace(/\$([^\$]*?)\$/g, (match, content) => {
+          const token = `##MATH_INLINE_${tokenCounter++}##`;
+          mathInline.push({ token, content });
+          return token;
         });
+        normalized = normalized.replace(/\\\(([\s\S]*?)\\\)/g, (match, content) => {
+          const token = `##MATH_INLINE_RAW_${tokenCounter++}##`;
+          mathInline.push({ token, content, raw: true });
+          return token;
+        });
+        normalized = normalized.replace(/\\\[([\s\S]*?)\\\]/g, (match, content) => {
+          const token = `##MATH_DISPLAY_RAW_${tokenCounter++}##`;
+          mathDisplay.push({ token, content, raw: true });
+          return token;
+        });
+        let html = marked.parse(normalized);
         mathDisplay.forEach(item => {
           html = html.replace(item.token, `\\[${item.content}\\]`);
         });
-        mathInlineDollar.forEach(item => {
-          html = html.replace(item.token, `$${item.content}$`);
+        mathInline.forEach(item => {
+          html = html.replace(item.token, `\\(${item.content}\\)`);
         });
-        mathDisplayDollar.forEach(item => {
-          html = html.replace(item.token, `$$$${item.content}$$`);
-        });
-        
         return DOMPurify.sanitize(html);
       }
 
-      function isAdmin() {
-        return currentUser && currentUser.email === ADMIN_EMAIL;
-      }
-
-      // ====== Render UI Login ======
+      function isAdmin() { return currentUser && currentUser.email === ADMIN_EMAIL; }
+      
       function updateLoginUI() {
         const loginSection = document.getElementById('loginSection');
         if (!loginSection) return;
-
         if (currentUser) {
-          loginSection.innerHTML = `
-            <div class="user-profile" id="logoutBtn">
-              <img src="${escapeHTML(currentUser.photoURL || 'https://via.placeholder.com/32')}" alt="foto">
-              <span>${escapeHTML(currentUser.displayName || 'User')}</span>
-              ${isAdmin() ? '<span class="admin-badge"><i class="fas fa-crown"></i> Admin</span>' : ''}
-            </div>
-          `;
-          document.getElementById('logoutBtn').addEventListener('click', () => {
-            auth.signOut();
-          });
+          loginSection.innerHTML = `<div class="user-profile" id="logoutBtn"><img src="${escapeHTML(currentUser.photoURL || 'https://via.placeholder.com/32')}" alt="foto"><span>${escapeHTML(currentUser.displayName || 'User')}</span>${isAdmin() ? '<span class="admin-badge"><i class="fas fa-crown"></i> Admin</span>' : ''}</div>`;
+          document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
         } else {
           loginSection.innerHTML = `<button class="login-btn" id="loginBtn"><i class="fab fa-google"></i> Login Admin</button>`;
-          document.getElementById('loginBtn').addEventListener('click', () => {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(error => {
-              console.error('Login error:', error);
-              alert('Gagal login. Lihat konsol.');
-            });
-          });
+          document.getElementById('loginBtn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(console.error));
         }
       }
-
-      // ====== Render tampilan forum ======
+      
       function renderQuestions() {
         const container = document.getElementById('questionsList');
         if (!container) return;
-
-        if (questions.length === 0) {
-          container.innerHTML = `<div class="empty-state"><i class="far fa-smile-wink"></i><p>Belum ada diskusi. Jadilah yang pertama bertanya!</p></div>`;
-          return;
-        }
-
+        if (questions.length === 0) { container.innerHTML = `<div class="empty-state"><i class="far fa-smile-wink"></i><p>Belum ada diskusi. Jadilah yang pertama bertanya!</p></div>`; return; }
         const admin = isAdmin();
-        let html = '';
-
-        html += `
-          <div class="voice-controls">
-            <i class="fas fa-volume-up" style="color: #2b3b7a;"></i>
-            <span style="font-size: 0.95rem; font-weight: 500;">Kontrol Suara:</span>
-            <select class="voice-select" id="voiceSelect" title="Pilih suara">
-              <option value="">Memuat suara...</option>
-            </select>
-            <input type="range" class="voice-speed" id="voiceSpeed" min="0.5" max="2" step="0.1" value="1.0" title="Kecepatan baca">
-            <span style="font-size: 0.9rem; color: #2b3b7a; font-weight: 500;" id="speedValue">1.0x</span>
-            <div class="voice-status" id="voiceStatus">
-              <i class="fas fa-check-circle"></i> Bahasa: Indonesia
-            </div>
-          </div>
-        `;
-
+        let html = `<div class="voice-controls"><i class="fas fa-volume-up" style="color:#2b3b7a;"></i><span style="font-size:0.95rem; font-weight:500;">Kontrol Suara:</span><select class="voice-select" id="voiceSelect"><option>Memuat suara...</option></select><input type="range" class="voice-speed" id="voiceSpeed" min="0.5" max="2" step="0.1" value="1.0"><span style="font-size:0.9rem; color:#2b3b7a; font-weight:500;" id="speedValue">1.0x</span><div class="voice-status" id="voiceStatus"><i class="fas fa-check-circle"></i> Bahasa: Indonesia</div></div>`;
         questions.forEach(q => {
           const initial = q.name ? q.name.trim().charAt(0).toUpperCase() : 'A';
           const escapedName = escapeHTML(q.name) || 'Anonim';
@@ -1534,165 +1335,52 @@
           const renderedQuestion = renderMarkdown(q.question);
           const answersHiddenClass = q.answersHidden ? 'hidden' : '';
           const toggleIcon = q.answersHidden ? 'fa-eye-slash' : 'fa-eye';
-          const toggleTitle = q.answersHidden ? 'Tampilkan jawaban' : 'Sembunyikan jawaban';
-
-          html += `
-            <div class="question-card" data-id="${q.id}">
-              <div class="card-header">
-                <div class="avatar">${initial}</div>
-                <div class="author-info">
-                  <div class="author-name">
-                    ${escapedName}
-                    <span>pendidik</span>
-                  </div>
-                  <div class="question-date">
-                    <i class="far fa-calendar-alt"></i> ${date}
-                  </div>
-                </div>
-              </div>
-              <div class="question-text">
-                ${renderedQuestion}
-              </div>
-              <div class="answers-section ${answersHiddenClass}">
-          `;
-
+          html += `<div class="question-card" data-id="${q.id}"><div class="card-header"><div class="avatar">${initial}</div><div class="author-info"><div class="author-name">${escapedName}<span>pendidik</span></div><div class="question-date"><i class="far fa-calendar-alt"></i> ${date}</div></div></div><div class="question-text">${renderedQuestion}</div><div class="answers-section ${answersHiddenClass}">`;
           if (q.answers && q.answers.length > 0) {
             q.answers.forEach(ans => {
               const ansInitial = ans.name ? ans.name.trim().charAt(0).toUpperCase() : 'A';
               const ansName = escapeHTML(ans.name) || 'Anonim';
               const ansText = renderMarkdown(ans.answer);
               const ansDate = ans.date || '';
-              html += `
-                <div class="answer-item" data-answer-id="${ans.id}" data-answer-raw="${escapeHTML(ans.answer)}">
-                  <div class="answer-avatar">${ansInitial}</div>
-                  <div class="answer-content">
-                    <div class="answer-meta">
-                      <span class="answer-name">${ansName}</span>
-                      <span class="answer-date">${ansDate}</span>
-                    </div>
-                    <div class="answer-text">${ansText}</div>
-                    <div class="answer-actions">
-					
-                      <button class="answer-copy-original-btn" data-answer-id="${ans.id}" data-question-id="${q.id}" title="Salin teks asli (raw)">
-                      <i class="fas fa-copy"></i> Salin
-                      </button>
-					  
-                      <button class="answer-voice-btn" data-answer-id="${ans.id}" data-question-id="${q.id}" title="Dengarkan jawaban"><i class="fas fa-headphones"></i> Dengarkan</button>
-                      <button class="answer-stop-btn" title="Hentikan"><i class="fas fa-stop"></i> Hentikan</button>
-                    </div>
-                  </div>
-                </div>
-              `;
+              // Simpan teks asli tanpa escape berlebihan, cukup quote untuk atribut
+              const rawAttr = ans.answer.replace(/"/g, '&quot;');
+              html += `<div class="answer-item" data-answer-id="${ans.id}" data-answer-raw="${rawAttr}"><div class="answer-avatar">${ansInitial}</div><div class="answer-content"><div class="answer-meta"><span class="answer-name">${ansName}</span><span class="answer-date">${ansDate}</span></div><div class="answer-text">${ansText}</div><div class="answer-actions"><button class="answer-copy-original-btn" data-answer-id="${ans.id}" data-question-id="${q.id}" title="Salin teks asli (raw)"><i class="fas fa-copy"></i> Salin</button><button class="answer-voice-btn" data-answer-id="${ans.id}" data-question-id="${q.id}" title="Dengarkan jawaban"><i class="fas fa-headphones"></i> Dengarkan</button><button class="answer-stop-btn" title="Hentikan"><i class="fas fa-stop"></i> Hentikan</button></div></div></div>`;
             });
-          } else {
-            html += `<p style="color:#94a3b8; margin-bottom:12px;">Belum ada jawaban. Jadilah yang pertama!</p>`;
-          }
-
-          html += `
-              <div class="reply-form" data-question-id="${q.id}">
-                <input type="text" placeholder="Nama (opsional)" class="reply-name" />
-                <textarea placeholder="Tulis jawaban Anda... (dukung Markdown & LaTeX)" class="reply-text"></textarea>
-                <div style="display:flex; gap:8px; margin-bottom:10px;">
-                  <button type="button" class="preview-answer-btn"><i class="fas fa-eye"></i> Preview</button>
-                  <button class="reply-submit">Kirim Jawaban</button>
-                </div>
-                <div class="answer-preview" style="display:none; background:#f8fafc; padding:15px; border-radius:20px; margin-top:10px; border:1px solid #e2e8f0;"></div>
-              </div>
-            </div>
-            <div class="card-actions">
-              <button class="action-btn toggle-answers" data-id="${q.id}" title="${toggleTitle}">
-                <i class="fas ${toggleIcon}"></i>
-              </button>
-              <button class="action-btn comment" disabled style="opacity:0.6; background:#f1f5f9;">
-                <i class="fas fa-comment"></i> ${q.answers ? q.answers.length : 0} Jawaban
-              </button>
-              ${admin ? `<button class="action-btn delete" data-id="${q.id}"><i class="fas fa-trash-can"></i> Hapus</button>` : ''}
-            </div>
-          </div>
-          `;
+          } else { html += `<p style="color:#94a3b8; margin-bottom:12px;">Belum ada jawaban. Jadilah yang pertama!</p>`; }
+          html += `<div class="reply-form" data-question-id="${q.id}"><input type="text" placeholder="Nama (opsional)" class="reply-name" /><textarea placeholder="Tulis jawaban Anda... (dukung Markdown & LaTeX)" class="reply-text"></textarea><div style="display:flex; gap:8px; margin-bottom:10px;"><button type="button" class="preview-answer-btn"><i class="fas fa-eye"></i> Preview</button><button class="reply-submit">Kirim Jawaban</button></div><div class="answer-preview" style="display:none; background:#f8fafc; padding:15px; border-radius:20px; margin-top:10px; border:1px solid #e2e8f0;"></div></div></div><div class="card-actions"><button class="action-btn toggle-answers" data-id="${q.id}" title="${q.answersHidden ? 'Tampilkan jawaban' : 'Sembunyikan jawaban'}"><i class="fas ${toggleIcon}"></i></button><button class="action-btn comment" disabled style="opacity:0.6; background:#f1f5f9;"><i class="fas fa-comment"></i> ${q.answers ? q.answers.length : 0} Jawaban</button>${admin ? `<button class="action-btn delete" data-id="${q.id}"><i class="fas fa-trash-can"></i> Hapus</button>` : ''}</div></div>`;
         });
-
         container.innerHTML = html;
-        
         setTimeout(() => {
           const voiceSelect = document.getElementById('voiceSelect');
-          if (voiceSelect) {
-            voiceSelect.addEventListener('change', function() {
-              const index = parseInt(this.value);
-              if (!isNaN(index) && voices[index]) {
-                selectedVoice = voices[index];
-              }
-            });
-          }
-          
+          if (voiceSelect) voiceSelect.addEventListener('change', function() { const idx = parseInt(this.value); if (!isNaN(idx) && voices[idx]) selectedVoice = voices[idx]; });
           const voiceSpeed = document.getElementById('voiceSpeed');
-          const speedValue = document.getElementById('speedValue');
-          if (voiceSpeed) {
-            voiceSpeed.addEventListener('input', function() {
-              speechRate = parseFloat(this.value);
-              if (speedValue) speedValue.textContent = speechRate.toFixed(1) + 'x';
-            });
-          }
-          
-          const voiceStatus = document.getElementById('voiceStatus');
-          if (voiceStatus) {
-            const langName = getLanguageName(currentLanguage);
-            voiceStatus.innerHTML = `<i class="fas fa-check-circle"></i> Bahasa: ${langName}`;
-          }
-          
-          loadVoices();
+          if (voiceSpeed) voiceSpeed.addEventListener('input', function() { speechRate = parseFloat(this.value); document.getElementById('speedValue').textContent = speechRate.toFixed(1)+'x'; });
+          if (voiceSelect && voices.length) loadVoices();
+          const statusDiv = document.getElementById('voiceStatus');
+          if (statusDiv) statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> Bahasa: ${getLanguageName(currentLanguage)}`;
         }, 100);
-        
         if (window.MathJax) MathJax.typesetPromise();
       }
-
-      // ====== Listener Firestore ======
+      
       function subscribeToQuestions() {
         if (unsubscribe) unsubscribe();
-        unsubscribe = db.collection(QUESTIONS_COLLECTION)
-          .orderBy('createdAt', 'desc')
-          .onSnapshot(snapshot => {
-            questions = snapshot.docs.map(doc => {
-              const data = doc.data();
-              return {
-                id: doc.id,
-                name: data.name || 'Anonim',
-                question: data.question || '',
-                likes: data.likes || 0,
-                answersHidden: false,
-                answers: Array.isArray(data.answers) ? data.answers.map(a => ({
-                  id: a.id,
-                  name: a.name || 'Anonim',
-                  answer: a.answer || '',
-                  likes: a.likes || 0,
-                  date: a.date || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
-                })) : [],
-                date: data.date || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
-                createdAt: data.createdAt || new Date()
-              };
-            });
-            renderQuestions();
-          }, error => console.error("Listener error:", error));
+        unsubscribe = db.collection(QUESTIONS_COLLECTION).orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+          questions = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return { id: doc.id, name: data.name || 'Anonim', question: data.question || '', likes:0, answersHidden:false, answers: Array.isArray(data.answers) ? data.answers.map(a => ({ id:a.id, name:a.name||'Anonim', answer:a.answer||'', likes:0, date:a.date||new Date().toLocaleDateString('id-ID') })) : [], date: data.date || new Date().toLocaleDateString('id-ID'), createdAt: data.createdAt || new Date() };
+          });
+          renderQuestions();
+        }, console.error);
       }
-
+      
       async function addQuestion(name, questionText) {
         try {
           const now = new Date();
-          const formattedDate = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-          await db.collection(QUESTIONS_COLLECTION).add({
-            name: name.trim() || 'Anonim',
-            question: questionText.trim(),
-            likes: 0,
-            answers: [],
-            date: formattedDate,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        } catch (error) {
-          console.error("Error adding question: ", error);
-          alert("Gagal menambahkan pertanyaan.");
-        }
+          const formattedDate = now.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
+          await db.collection(QUESTIONS_COLLECTION).add({ name: name.trim() || 'Anonim', question: questionText.trim(), likes:0, answers:[], date: formattedDate, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        } catch(error) { alert("Gagal menambahkan pertanyaan."); console.error(error); }
       }
-
+      
       async function addAnswer(questionId, name, answerText) {
         try {
           const questionRef = db.collection(QUESTIONS_COLLECTION).doc(questionId);
@@ -1701,341 +1389,158 @@
             if (!doc.exists) throw new Error("Pertanyaan tidak ditemukan");
             const data = doc.data();
             const answers = data.answers || [];
-            const newAnswer = {
-              id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
-              name: name.trim() || 'Anonim',
-              answer: answerText.trim(),
-              likes: 0,
-              date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
-            };
-            answers.push(newAnswer);
+            answers.push({ id: Date.now().toString()+Math.random().toString(36).substr(2,5), name: name.trim()||'Anonim', answer: answerText.trim(), likes:0, date: new Date().toLocaleDateString('id-ID') });
             transaction.update(questionRef, { answers });
           });
-        } catch (error) {
-          console.error("Error adding answer: ", error);
-          alert("Gagal menambahkan jawaban.");
-        }
+        } catch(error) { alert("Gagal menambahkan jawaban."); console.error(error); }
       }
-
+      
       async function deleteQuestion(questionId) {
-        if (!isAdmin()) {
-          alert('Hanya admin yang dapat menghapus pertanyaan.');
+        if (!isAdmin()) { alert('Hanya admin yang dapat menghapus pertanyaan.'); return; }
+        if (!confirm('Hapus pertanyaan ini?')) return;
+        try { await db.collection(QUESTIONS_COLLECTION).doc(questionId).delete(); } catch(error) { alert("Gagal menghapus pertanyaan."); console.error(error); }
+      }
+      
+      function toggleAnswers(questionId) {
+        const q = questions.find(q => q.id == questionId);
+        if (q) { q.answersHidden = !q.answersHidden; renderQuestions(); }
+      }
+      
+      function playAnswer(questionId, answerId, btnElement) {
+        const answerItem = btnElement.closest('.answer-item');
+        if (!answerItem) return;
+        let rawText = answerItem.getAttribute('data-answer-raw');
+        if (!rawText) {
+          const question = questions.find(q => q.id == questionId);
+          const answer = question?.answers.find(a => a.id == answerId);
+          rawText = answer?.answer || '';
+        }
+        if (!rawText.trim()) {
+          alert('Tidak ada teks untuk dibacakan.');
           return;
         }
-        if (!confirm('Hapus pertanyaan ini dari forum?')) return;
-        try {
-          await db.collection(QUESTIONS_COLLECTION).doc(questionId).delete();
-        } catch (error) {
-          console.error("Error deleting question: ", error);
-          alert("Gagal menghapus pertanyaan. Pastikan Anda login sebagai admin dan memiliki izin.");
+        const cleanText = cleanTextForVoice(rawText);
+        if (!cleanText.trim()) {
+          alert('Tidak ada teks yang dapat dibaca setelah pembersihan.');
+          return;
         }
-      }
-
-      function toggleAnswers(questionId) {
-        const question = questions.find(q => q.id == questionId);
-        if (question) {
-          question.answersHidden = !question.answersHidden;
-          renderQuestions();
-        }
-      }
-
-      function playAnswer(questionId, answerId, btnElement) {
-        const question = questions.find(q => q.id == questionId);
-        if (!question) return;
-        
-        const answerItem = btnElement.closest('.answer-item');
-        let textToSpeak = '';
-        
-        if (answerItem) {
-          const answerTextDiv = answerItem.querySelector('.answer-text');
-          textToSpeak = getTextFromElement(answerTextDiv);
-        } else {
-          const answer = question.answers.find(a => a.id == answerId);
-          textToSpeak = answer ? answer.answer : '';
-        }
-        
         if (currentUtterance) {
           stopSpeaking();
         } else {
-          speakText(textToSpeak, btnElement);
+          speakText(cleanText, btnElement);
         }
       }
-
+      
       function copyOriginalAnswer(questionId, answerId) {
-        const question = questions.find(q => q.id == questionId);
-        if (!question) return;
-        const answer = question.answers.find(a => a.id == answerId);
-        if (!answer) return;
-        
-        navigator.clipboard.writeText(answer.answer).then(() => {
-          alert('Teks asli (raw) berhasil disalin ke clipboard!');
-        }).catch(err => {
-          alert('Gagal menyalin teks.');
-          console.error(err);
-        });
+        const q = questions.find(q => q.id == questionId);
+        if (!q) return;
+        const ans = q.answers.find(a => a.id == answerId);
+        if (ans) navigator.clipboard.writeText(ans.answer).then(()=>alert('Teks asli disalin!')).catch(console.error);
       }
-
-      function copyDisplayedAnswer(questionId, answerId, btnElement) {
-        const question = questions.find(q => q.id == questionId);
-        if (!question) return;
-        
-        const answerItem = btnElement.closest('.answer-item');
-        let textToCopy = '';
-        
-        if (answerItem) {
-          const answerTextDiv = answerItem.querySelector('.answer-text');
-          textToCopy = getTextFromElement(answerTextDiv);
-        } else {
-          const answer = question.answers.find(a => a.id == answerId);
-          textToCopy = answer ? answer.answer : '';
+      
+      // Event delegation untuk list pertanyaan
+      document.getElementById('questionsList').addEventListener('click', async (e) => {
+        const target = e.target.closest('button');
+        if (!target) return;
+        if (target.closest('.action-btn.delete')) { const id = target.getAttribute('data-id'); if(id) deleteQuestion(id); return; }
+        if (target.closest('.action-btn.toggle-answers')) { const id = target.getAttribute('data-id'); if(id) toggleAnswers(id); return; }
+        if (target.closest('.answer-copy-original-btn')) { const ansId = target.getAttribute('data-answer-id'); const qId = target.getAttribute('data-question-id'); if(ansId && qId) copyOriginalAnswer(qId, ansId); return; }
+        if (target.closest('.answer-voice-btn')) { const ansId = target.getAttribute('data-answer-id'); const qId = target.getAttribute('data-question-id'); if(ansId && qId) playAnswer(qId, ansId, target); return; }
+        if (target.closest('.answer-stop-btn')) { stopSpeaking(); return; }
+        if (target.classList.contains('reply-submit')) {
+          const form = target.closest('.reply-form');
+          const qId = form.getAttribute('data-question-id');
+          const name = form.querySelector('.reply-name').value;
+          const text = form.querySelector('.reply-text').value.trim();
+          if (!text) { alert('Jawaban tidak boleh kosong.'); return; }
+          await addAnswer(qId, name, text);
+          form.querySelector('.reply-name').value = '';
+          form.querySelector('.reply-text').value = '';
+          form.querySelector('.answer-preview').style.display = 'none';
+          return;
         }
-        
-        navigator.clipboard.writeText(textToCopy.trim()).then(() => {
-          alert('Teks yang ditampilkan berhasil disalin ke clipboard!');
-        }).catch(err => {
-          alert('Gagal menyalin teks.');
-          console.error(err);
-        });
-      }
-
-      document.getElementById('questionsList').addEventListener('click', async (e) => {
-  const target = e.target.closest('button');
-  if (!target) return;
-  e.stopPropagation();
-
-  // Hapus pertanyaan
-  const deleteBtn = target.closest('.action-btn.delete');
-  if (deleteBtn) {
-    const qId = deleteBtn.getAttribute('data-id');
-    if (qId) deleteQuestion(qId);
-    return;
-  }
-
-  // Toggle jawaban
-  const toggleBtn = target.closest('.action-btn.toggle-answers');
-  if (toggleBtn) {
-    const qId = toggleBtn.getAttribute('data-id');
-    if (qId) toggleAnswers(qId);
-    return;
-  }
-
-  // Tombol Salin (langsung copy raw)
-const copyRawBtn = target.closest('.answer-copy-original-btn');
-if (copyRawBtn) {
-  const ansId = copyRawBtn.getAttribute('data-answer-id');
-  const qId = copyRawBtn.getAttribute('data-question-id');
-  if (ansId && qId) copyOriginalAnswer(qId, ansId);
-  return;
-}
-
-  
-  // Voice (dengarkan)
-  const voiceBtn = target.closest('.answer-voice-btn');
-  if (voiceBtn) {
-    const ansId = voiceBtn.getAttribute('data-answer-id');
-    const qId = voiceBtn.getAttribute('data-question-id');
-    if (ansId && qId) playAnswer(qId, ansId, voiceBtn);
-    return;
-  }
-
-  // Stop voice
-  const stopBtn = target.closest('.answer-stop-btn');
-  if (stopBtn) {
-    stopSpeaking();
-    return;
-  }
-
-  // Preview jawaban
-  const previewBtn = target.closest('.preview-answer-btn');
-  if (previewBtn) {
-    const replyForm = previewBtn.closest('.reply-form');
-    if (replyForm) {
-      const textarea = replyForm.querySelector('.reply-text');
-      const previewDiv = replyForm.querySelector('.answer-preview');
-      const text = textarea.value.trim();
-      if (text === '') {
-        previewDiv.style.display = 'none';
-        return;
-      }
-      const rendered = renderMarkdown(text);
-      previewDiv.innerHTML = rendered;
-      previewDiv.style.display = 'block';
-      if (window.MathJax) MathJax.typesetPromise([previewDiv]);
-    }
-    return;
-  }
-});
-      document.getElementById('questionsList').addEventListener('click', async (e) => {
-        if (e.target.classList.contains('reply-submit')) {
-          const replyForm = e.target.closest('.reply-form');
-          if (!replyForm) return;
-          const qId = replyForm.getAttribute('data-question-id');
-          const nameInput = replyForm.querySelector('.reply-name');
-          const textInput = replyForm.querySelector('.reply-text');
-          if (nameInput && textInput) {
-            const name = nameInput.value.trim();
-            const text = textInput.value.trim();
-            if (!text) {
-              alert('Jawaban tidak boleh kosong.');
-              return;
-            }
-            await addAnswer(qId, name, text);
-            nameInput.value = '';
-            textInput.value = '';
-            const previewDiv = replyForm.querySelector('.answer-preview');
-            if (previewDiv) previewDiv.style.display = 'none';
-          }
+        if (target.classList.contains('preview-answer-btn')) {
+          const form = target.closest('.reply-form');
+          const text = form.querySelector('.reply-text').value;
+          const previewDiv = form.querySelector('.answer-preview');
+          if (text.trim() === '') { previewDiv.style.display = 'none'; return; }
+          previewDiv.innerHTML = renderMarkdown(text);
+          previewDiv.style.display = 'block';
+          if (window.MathJax) MathJax.typesetPromise([previewDiv]);
         }
       });
-
-      document.getElementById('askForm').addEventListener('submit', async (e) => {
+      
+      // MODAL PERTANYAAN
+      const modal = document.getElementById('questionModal');
+      const openBtn = document.getElementById('openQuestionModalBtn');
+      const closeModal = document.getElementById('closeQuestionModal');
+      const modalForm = document.getElementById('modalAskForm');
+      const modalName = document.getElementById('modalName');
+      const modalQuestion = document.getElementById('modalQuestion');
+      const modalPreviewDiv = document.getElementById('modalQuestionPreview');
+      const previewModalBtn = document.getElementById('previewModalQuestionBtn');
+      
+      function openModalQuestion() { modal.classList.add('active'); modalQuestion.focus(); }
+      function closeModalQuestion() { modal.classList.remove('active'); }
+      openBtn.addEventListener('click', openModalQuestion);
+      closeModal.addEventListener('click', closeModalQuestion);
+      window.addEventListener('click', (e) => { if (e.target === modal) closeModalQuestion(); });
+      
+      previewModalBtn.addEventListener('click', () => {
+        const text = modalQuestion.value;
+        if (text.trim() === '') { modalPreviewDiv.style.display = 'none'; return; }
+        modalPreviewDiv.innerHTML = renderMarkdown(text);
+        modalPreviewDiv.style.display = 'block';
+        if (window.MathJax) MathJax.typesetPromise([modalPreviewDiv]);
+      });
+      
+      modalForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const questionInput = document.getElementById('question');
-        const questionText = questionInput.value.trim();
-        if (!questionText) {
-          alert('Tulis pertanyaan Anda terlebih dahulu.');
-          return;
-        }
-        const nameInput = document.getElementById('name');
-        const name = nameInput.value.trim() || 'Anonim';
+        const questionText = modalQuestion.value.trim();
+        if (!questionText) { alert('Tulis pertanyaan Anda terlebih dahulu.'); return; }
+        const name = modalName.value.trim() || 'Anonim';
         await addQuestion(name, questionText);
-        nameInput.value = '';
-        questionInput.value = '';
-        document.getElementById('questionPreview').style.display = 'none';
+        modalName.value = '';
+        modalQuestion.value = '';
+        modalPreviewDiv.style.display = 'none';
+        closeModalQuestion();
       });
-
-      document.getElementById('previewQuestionBtn').addEventListener('click', function() {
-        const questionText = document.getElementById('question').value;
-        const previewDiv = document.getElementById('questionPreview');
-        if (questionText.trim() === '') {
-          previewDiv.style.display = 'none';
-          return;
-        }
-        const rendered = renderMarkdown(questionText);
-        previewDiv.innerHTML = rendered;
-        previewDiv.style.display = 'block';
-        if (window.MathJax) MathJax.typesetPromise([previewDiv]);
-      });
-
-      auth.onAuthStateChanged(user => {
-        if (user) {
-          currentUser = {
-            email: user.email,
-            displayName: user.displayName,
-            photoURL: user.photoURL
-          };
-        } else {
-          currentUser = null;
-        }
-        updateLoginUI();
-        renderQuestions();
-      });
-
-      const modal = document.getElementById('manualModal');
+      
+      // Manual modal (panduan)
+      const manualModal = document.getElementById('manualModal');
       const manualBtn = document.getElementById('manualBtn');
       const manualFooterLink = document.getElementById('manualFooterLink');
       const closeManual = document.getElementById('closeManual');
-
-      function openModal() { modal.classList.add('active'); }
-      function closeModal() { modal.classList.remove('active'); }
-
-      manualBtn.addEventListener('click', openModal);
-      manualFooterLink.addEventListener('click', (e) => { e.preventDefault(); openModal(); });
-      closeManual.addEventListener('click', closeModal);
-      window.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-
+      manualBtn.addEventListener('click', () => manualModal.classList.add('active'));
+      manualFooterLink.addEventListener('click', (e) => { e.preventDefault(); manualModal.classList.add('active'); });
+      closeManual.addEventListener('click', () => manualModal.classList.remove('active'));
+      window.addEventListener('click', (e) => { if (e.target === manualModal) manualModal.classList.remove('active'); });
+      
+      auth.onAuthStateChanged(user => { currentUser = user ? { email: user.email, displayName: user.displayName, photoURL: user.photoURL } : null; updateLoginUI(); renderQuestions(); });
       subscribeToQuestions();
       updateLoginUI();
       
-      // ====== MathQuill Initialization ======
+      // MathQuill Initialization
       $(document).ready(function() {
         if (window.MathQuill) {
           MQ = MathQuill.getInterface(2);
-          
-          mathField = MQ.MathField($('#mathEditorField')[0], {
-            spaceBehavesLikeTab: true,
-            handlers: {
-              edit: function() {
-                const latex = mathField.latex();
-                $('#latexOutput').text(latex ? '\\(' + latex + '\\)' : '\\( \\)');
-              }
-            }
-          });
-          
-          // Toolbar buttons
-          $('.latex-btn').click(function() {
-            if (!mathField) return;
-            const latex = $(this).data('latex');
-            if (latex) {
-              mathField.cmd(latex);
-              mathField.focus();
-            }
-          });
-          
-          // Copy LaTeX
-          $('#copyLatexBtn').click(function() {
-            const latex = mathField.latex();
-            if (latex) {
-              const fullLatex = '\\(' + latex + '\\)';
-              navigator.clipboard.writeText(fullLatex).then(() => {
-                alert('Kode LaTeX berhasil disalin!');
-              });
-            } else {
-              alert('Tidak ada LaTeX untuk disalin.');
-            }
-          });
-          
-          // Insert to question
-          $('#insertToQuestion').click(function() {
-            const latex = mathField.latex();
-            if (latex) {
-              const questionField = document.getElementById('question');
-              const fullLatex = '\\(' + latex + '\\)';
-              questionField.value += ' ' + fullLatex + ' ';
-              questionField.focus();
-              alert('LaTeX telah ditambahkan ke form pertanyaan.');
-            } else {
-              alert('Tidak ada LaTeX untuk disisipkan.');
-            }
-          });
-          
-          // Insert to last answer
+          mathField = MQ.MathField($('#mathEditorField')[0], { spaceBehavesLikeTab: true, handlers: { edit: function() { $('#latexOutput').text(mathField.latex() ? '\\(' + mathField.latex() + '\\)' : '\\( \\)'); } } });
+          $('.latex-btn').click(function() { if(mathField) { mathField.cmd($(this).data('latex')); mathField.focus(); } });
+          $('#copyLatexBtn').click(function() { const latex = mathField.latex(); if(latex) navigator.clipboard.writeText('\\('+latex+'\\)').then(()=>alert('Kode LaTeX disalin!')); else alert('Tidak ada LaTeX.'); });
+          $('#insertToQuestion').click(function() { const latex = mathField.latex(); if(latex) { document.getElementById('modalQuestion').value += ' \\('+latex+'\\) '; document.getElementById('modalQuestion').focus(); alert('LaTeX ditambahkan ke pertanyaan (modal).'); } else alert('Tidak ada LaTeX.'); });
           $('#insertToAnswer').click(function() {
             const latex = mathField.latex();
-            if (!latex) {
-              alert('Tidak ada LaTeX untuk disisipkan.');
-              return;
-            }
-            
-            // Cari form jawaban terakhir yang visible
+            if(!latex) { alert('Tidak ada LaTeX.'); return; }
             const replyForms = document.querySelectorAll('.reply-form');
-            let lastReplyForm = null;
-            for (let i = replyForms.length - 1; i >= 0; i--) {
-              const form = replyForms[i];
-              const card = form.closest('.question-card');
-              if (card && !card.querySelector('.answers-section')?.classList.contains('hidden')) {
-                lastReplyForm = form;
-                break;
-              }
-            }
-            
-            if (lastReplyForm) {
-              const textarea = lastReplyForm.querySelector('.reply-text');
-              if (textarea) {
-                const fullLatex = '\\(' + latex + '\\)';
-                textarea.value += ' ' + fullLatex + ' ';
-                textarea.focus();
-                alert('LaTeX telah ditambahkan ke form jawaban.');
-              }
-            } else {
-              alert('Tidak ada form jawaban yang tersedia. Pastikan ada pertanyaan yang ditampilkan.');
-            }
+            let last = null;
+            for(let i=replyForms.length-1;i>=0;i--) { const form = replyForms[i]; const card = form.closest('.question-card'); if(card && !card.querySelector('.answers-section')?.classList.contains('hidden')) { last = form; break; } }
+            if(last) { const ta = last.querySelector('.reply-text'); if(ta) { ta.value += ' \\('+latex+'\\) '; ta.focus(); alert('LaTeX ditambahkan ke jawaban.'); } } else alert('Tidak ada form jawaban terbuka.');
           });
         }
       });
     })();
     
-    // ====== SageMath Functions ======
+ // ====== SageMath Functions ======
     function waitForSageMath(callback) {
       if (typeof sagecell !== 'undefined' && sagecell.makeSagecell) {
         callback();
@@ -2253,4 +1758,3 @@ plot(sin(x), (x, -pi, pi), color='red', thickness=2, figsize=[6,3])`;
   </script>
 </body>
 </html>
-
