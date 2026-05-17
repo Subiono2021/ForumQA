@@ -1275,38 +1275,46 @@
       }
  
       function renderMarkdown(text) {
-        if (!text) return '';
-        let normalized = text.replace(/\\\\\(/g, '\\(').replace(/\\\\\[/g, '\\[');
-        let mathInline = [], mathDisplay = [], tokenCounter = 0;
-        normalized = normalized.replace(/\$\$([\s\S]*?)\$\$/g, (match, content) => {
-          const token = `##MATH_DISPLAY_${tokenCounter++}##`;
-          mathDisplay.push({ token, content });
-          return token;
-        });
-        normalized = normalized.replace(/\$([^\$]*?)\$/g, (match, content) => {
-          const token = `##MATH_INLINE_${tokenCounter++}##`;
-          mathInline.push({ token, content });
-          return token;
-        });
-        normalized = normalized.replace(/\\\(([\s\S]*?)\\\)/g, (match, content) => {
-          const token = `##MATH_INLINE_RAW_${tokenCounter++}##`;
-          mathInline.push({ token, content, raw: true });
-          return token;
-        });
-        normalized = normalized.replace(/\\\[([\s\S]*?)\\\]/g, (match, content) => {
-          const token = `##MATH_DISPLAY_RAW_${tokenCounter++}##`;
-          mathDisplay.push({ token, content, raw: true });
-          return token;
-        });
-        let html = marked.parse(normalized);
-        mathDisplay.forEach(item => {
-          html = html.replace(item.token, `\\[${item.content}\\]`);
-        });
-        mathInline.forEach(item => {
-          html = html.replace(item.token, `\\(${item.content}\\)`);
-        });
-        return DOMPurify.sanitize(html);
-      }
+  if (!text) return '';
+  let normalized = text.replace(/\\\\\(/g, '\\(').replace(/\\\\\[/g, '\\[');
+  let mathInline = [], mathDisplay = [], tokenCounter = 0;
+  
+  normalized = normalized.replace(/\$\$([\s\S]*?)\$\$/g, (match, content) => {
+    const token = `##MATH_DISPLAY_${tokenCounter++}##`;
+    mathDisplay.push({ token, content });
+    return token;
+  });
+  normalized = normalized.replace(/\$([^\$]*?)\$/g, (match, content) => {
+    const token = `##MATH_INLINE_${tokenCounter++}##`;
+    mathInline.push({ token, content });
+    return token;
+  });
+  normalized = normalized.replace(/\\\(([\s\S]*?)\\\)/g, (match, content) => {
+    const token = `##MATH_INLINE_RAW_${tokenCounter++}##`;
+    mathInline.push({ token, content, raw: true });
+    return token;
+  });
+  normalized = normalized.replace(/\\\[([\s\S]*?)\\\]/g, (match, content) => {
+    const token = `##MATH_DISPLAY_RAW_${tokenCounter++}##`;
+    mathDisplay.push({ token, content, raw: true });
+    return token;
+  });
+  
+  // PERBAIKAN 1: tambahkan opsi { html: true } agar HTML tidak di-escape
+  let html = marked.parse(normalized, { html: true });
+  
+  mathDisplay.forEach(item => {
+    html = html.replace(item.token, `\\[${item.content}\\]`);
+  });
+  mathInline.forEach(item => {
+    html = html.replace(item.token, `\\(${item.content}\\)`);
+  });
+  
+  // PERBAIKAN 2: izinkan atribut target pada DOMPurify
+  return DOMPurify.sanitize(html, {
+    ADD_ATTR: ['target']
+  });
+}
 
       function isAdmin() { return currentUser && currentUser.email === ADMIN_EMAIL; }
       
